@@ -16,11 +16,11 @@ Welcome to the RPG GAME project! This repository contains the complete setup for
 |11.Video Tutorial (Part 1)
 |12.Credits
 |13.License
-|14.Configure Mirror
 
 
 RPG GAME Project
 Welcome to the RPG GAME project! This document will guide you through the various aspects of the project, from setup instructions to detailed feature descriptions, ensuring you have everything you need to get started and understand the project's structure.
+
 
 1. Table of Contents
 The Table of Contents provides a structured outline of the document.
@@ -28,18 +28,30 @@ The Table of Contents provides a structured outline of the document.
 2. Features
 RPG GAME boasts several key features that make it an exciting and engaging experience:
 
--RPG Stats
+-RPG Stats:
+
 -Custom spawn by faction, level etc....
+
 -Fly movement with "F" key
+
 -Water system (simple water system)
+
 -Sword attack with "E" key
+
 -PvP sauvage for fun with "G" key :)
+
 -Full customisable netwoked third person controller with camera cinemachine
+
 -Spell attack with TAB lock (in-progress) + left click
+
 -Cloud Script with full customisable backend playfab and 98/h per month of free Dasv8 for testing build remote server
+
 -TriggerBox with area effet camera travelling "Lore" mode
+
 -SkeletonAI (skeleton of AI structure full customisable) for basic enemy with Navmesh of Unity Engine
+
 -FFAI (testing AI neutral at debug)
+
 -Day/Night with extensible Fast Sky shader
 
 3. Configure PlayFab
@@ -131,6 +143,7 @@ This project uses code and concepts from:
 |Procedural Terrain Painter: https://assetstore.unity.com/packages/tools/terrain/procedural-terrain-painter-188357 (Unity Free Assets)
 ![image](https://github.com/user-attachments/assets/20232a05-7ea8-4ec8-9240-81c4bbead7c1)
 |ThirdPersonController: Official Unity Free Assets
+
 
 13.License:
 Include any licensing information here.
