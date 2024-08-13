@@ -2,20 +2,20 @@
 Welcome to the RPG GAME project! This repository contains the complete setup for a multiplayer RPG game built using Unity, Mirror for networking, and PlayFab for backend services. Follow the instructions below to get started, configure the project, and build both the client and server components.
 
 
-1.Table of Contents
-2.Features
-3.Setup Instructions
-4.Clone the Repository
-5.Install Dependencies
-6.Configure PlayFab
-7.Configure Mirror
-8.Building the Project
-9.Client Build
-10.Server Build
-11.Custom Features
-12.Credits
-13.License
-14.Features
+|1.Table of Contents
+|2.Features
+|3.Setup Instructions
+|4.Clone the Repository
+|5.Install Dependencies
+|6.Configure PlayFab
+|7.Configure Mirror
+|8.Building the Project
+|9.Client Build
+|10.Server Build
+|11.Custom Features
+|12.Credits
+|13.License
+|14.Features
 
 Multiplayer functionality using Mirror
 Backend services powered by PlayFab
@@ -85,12 +85,12 @@ Backend services integration with PlayFab.
 Credits:
 This project uses code and concepts from:
 
-natepac/playfabmirrorgameexample: https://mirror-networking.com/](https://github.com/natepac/playfabmirrorgameexample)
-Mirror Networking: https://mirror-networking.com/
-PlayFab: https://playfab.com/
-TextMesh Pro : Unity Free Assets
-Procedural Terrain Painter: Unity Free Assets
-ThirdPersonController: Official Unity Free Assets
+|natepac/playfabmirrorgameexample: https://mirror-networking.com/](https://github.com/natepac/playfabmirrorgameexample)
+|Mirror Networking: https://mirror-networking.com/
+|PlayFab: https://playfab.com/
+|TextMesh Pro : Unity Free Assets
+|Procedural Terrain Painter: Unity Free Assets
+|ThirdPersonController: Official Unity Free Assets
 
 License:
 Include any licensing information here.
