@@ -1,5 +1,6 @@
 # Unity-RPG-Game
 Welcome to the RPG GAME project! This repository contains the complete setup for a multiplayer RPG game built using Unity, Mirror for networking, and PlayFab for backend services. Follow the instructions below to get started, configure the project, and build both the client and server components.
+![image](https://github.com/user-attachments/assets/1361b09d-49da-45a5-8cbe-b87d7a4f4b2f)
 
 
 |1.Table of Contents
@@ -67,6 +68,8 @@ Click Build and choose a location to save the client build.
 
 
 Server Build:
+![image](https://github.com/user-attachments/assets/f7c6cc52-553a-4b41-aae0-6501bfbb1266)
+
 Open the Build Settings window in Unity (File > Build Settings).
 Select your target platform.
 Enable the Server Build option.
@@ -90,6 +93,7 @@ This project uses code and concepts from:
 |PlayFab: https://playfab.com/
 |TextMesh Pro : Unity Free Assets
 |Procedural Terrain Painter: https://assetstore.unity.com/packages/tools/terrain/procedural-terrain-painter-188357 (Unity Free Assets)
+![image](https://github.com/user-attachments/assets/20232a05-7ea8-4ec8-9240-81c4bbead7c1)
 |ThirdPersonController: Official Unity Free Assets
 
 License:
