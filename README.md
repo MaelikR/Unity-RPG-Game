@@ -28,80 +28,57 @@ Setup Instructions
 
 Clone the Repository:
 First, clone the repository to your local machine:
-
 git clone https://github.com/MaelikR/Unity-RPG-Game.git
 Open the project in Unity.
 
 Install Dependencies
 Mirror:
-
 Download and import Mirror from the Unity Asset Store.
 PlayFab SDK:
-
 Download the PlayFab SDK and import it into your Unity project.
 TextMesh Pro:
-
 Download and import TextMesh Pro from the Unity Asset Store.
 Procedural Terrain Painter:
-
 Download and import Procedural Terrain Painter from the Unity Asset Store.
 ThirdPersonController:
-
 Download and import ThirdPersonController from the Unity Asset Store.
 
 
 Configure PlayFab:
 Sign up for PlayFab and create a new title.
-
 In Unity, navigate to Window > PlayFab > Editor Extensions > Settings.
-
 Enter your PlayFab Title ID and Secret Key.
-
 Follow the PlayFab setup guide to configure authentication and backend services.
 
 
 Configure Mirror:
 Set up the network manager in your main scene.
-
 Configure networked objects and components as required.
-
 Follow the Mirror documentation for detailed setup instructions.
 
 
 Building the Project
 Client Build:
 Open the Build Settings window in Unity (File > Build Settings).
-
 Select your target platform (e.g., PC, Mac, & Linux Standalone).
-
 Add your main scene to the build by clicking Add Open Scenes.
-
 Configure Player Settings as needed.
-
 Click Build and choose a location to save the client build.
 
 
 Server Build:
 Open the Build Settings window in Unity (File > Build Settings).
-
 Select your target platform.
-
 Enable the Server Build option.
-
 Add your main scene to the build.
-
 Configure Player Settings, ensuring Headless Mode is enabled.
-
 Click Build and choose a location to save the server build.
 
 
 Custom Features:
 Detailed terrain customization using Procedural Terrain Painter.
-
 Enhanced UI and text rendering with TextMesh Pro.
-
 Multiplayer networking powered by Mirror.
-
 Backend services integration with PlayFab.
 
 
