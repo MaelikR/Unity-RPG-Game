@@ -85,12 +85,12 @@ Backend services integration with PlayFab.
 Credits:
 This project uses code and concepts from:
 
-natepac/playfabmirrorgameexample
-Mirror Networking
-PlayFab
-TextMesh Pro
-Procedural Terrain Painter
-ThirdPersonController
+natepac/playfabmirrorgameexample: https://mirror-networking.com/](https://github.com/natepac/playfabmirrorgameexample)
+Mirror Networking: https://mirror-networking.com/
+PlayFab: https://playfab.com/
+TextMesh Pro : Unity Free Assets
+Procedural Terrain Painter: Unity Free Assets
+ThirdPersonController: Official Unity Free Assets
 
 License:
 Include any licensing information here.
