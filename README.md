@@ -89,7 +89,7 @@ This project uses code and concepts from:
 |Mirror Networking: https://mirror-networking.com/
 |PlayFab: https://playfab.com/
 |TextMesh Pro : Unity Free Assets
-|Procedural Terrain Painter: Unity Free Assets
+|Procedural Terrain Painter: https://assetstore.unity.com/packages/tools/terrain/procedural-terrain-painter-188357 (Unity Free Assets)
 |ThirdPersonController: Official Unity Free Assets
 
 License:
