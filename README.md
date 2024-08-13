@@ -84,6 +84,7 @@ Enhanced UI and text rendering with TextMesh Pro.
 Multiplayer networking powered by Mirror.
 Backend services integration with PlayFab.
 
+Video Tutorial Part 1: https://youtu.be/Q90bylFXtNY
 
 Credits:
 This project uses code and concepts from:
