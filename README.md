@@ -169,12 +169,16 @@ TextMesh Pro:
 Download and import TextMesh Pro from the Unity Asset Store.
 Procedural Terrain Painter:
 Download and import Procedural Terrain Painter from the Unity Asset Store.
+
+
 ThirdPersonController:
 Download and import ThirdPersonController from the Unity Asset Store.
 
-11. Video Tutorial Part 1: https://youtu.be/Q90bylFXtNY
+![image](https://github.com/user-attachments/assets/585f4377-c787-411d-ab3d-d3398327d175)
 
-12. Credits:
+12. Video Tutorial Part 1: https://youtu.be/Q90bylFXtNY
+
+13. Credits:
 This project uses code and concepts from:
 
 |natepac/playfabmirrorgameexample: https://mirror-networking.com/](https://github.com/natepac/playfabmirrorgameexample)
