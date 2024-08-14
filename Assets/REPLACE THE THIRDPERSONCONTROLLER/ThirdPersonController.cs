@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
@@ -6,7 +6,6 @@ using Cinemachine;
 
 public class ThirdPersonController : NetworkBehaviour
 {
-
     [Header("Movement Settings")]
     public float walkSpeed = 5f;
     public float sprintSpeed = 10f;
@@ -18,6 +17,9 @@ public class ThirdPersonController : NetworkBehaviour
     private bool isFlying = false;
     private bool isSprinting = false;
     private bool isJumping = false;
+
+    private float turnSmoothVelocity;
+    public float turnSmoothTime = 0.1f;
 
     [Header("Camera Settings")]
     public float mouseSensitivity = 100f;
@@ -34,6 +36,8 @@ public class ThirdPersonController : NetworkBehaviour
     public CharacterController characterController;
     private Animator animator;
     public AudioListener audioListener;
+
+    public CapsuleCollider capsuleCollider;
 
     [Header("Sound Settings")]
     public AudioClip jumpSound;
@@ -217,8 +221,23 @@ public class ThirdPersonController : NetworkBehaviour
         float moveZ = Input.GetAxis("Vertical");
 
         float currentSpeed = isSprinting ? sprintSpeed : walkSpeed;
-        Vector3 move = transform.right * moveX + transform.forward * moveZ;
-        characterController.Move(move * currentSpeed * Time.deltaTime);
+        Vector3 move = new Vector3(moveX, 0, moveZ).normalized;
+
+        if (move.magnitude >= 0.1f)
+        {
+            float targetAngle = Mathf.Atan2(move.x, move.z) * Mathf.Rad2Deg + cinemachineFreeLook.m_XAxis.Value;
+            float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
+            transform.rotation = Quaternion.Euler(0, angle, 0);
+
+            Vector3 moveDirection = Quaternion.Euler(0, targetAngle, 0) * Vector3.forward;
+            characterController.Move(moveDirection * currentSpeed * Time.deltaTime);
+
+            animator.SetFloat("speed", currentSpeed);
+        }
+        else
+        {
+            animator.SetFloat("speed", 0);
+        }
 
         bool isMoving = move != Vector3.zero;
         animator.SetBool("isWalking", isMoving);
@@ -289,7 +308,6 @@ public class ThirdPersonController : NetworkBehaviour
         characterController.Move(move * swimSpeed * Time.deltaTime);
     }
 
-
     private void StartSwimming()
     {
         isSwimming = true;
@@ -348,6 +366,9 @@ public class ThirdPersonController : NetworkBehaviour
         animator.SetBool("isFlying", true);
         velocity.y = 0;
         audioSource.PlayOneShot(flySound);
+        // Rotate the CapsuleCollider to horizontal
+        capsuleCollider.direction = 2; // 0 for X-axis, 1 for Y-axis, 2 for Z-axis
+        capsuleCollider.center = new Vector3(0, 0.5f, 0); // Adjust the center if needed
     }
 
     private void StopFlying()
@@ -355,6 +376,9 @@ public class ThirdPersonController : NetworkBehaviour
         animator.SetTrigger("startFall");
         velocity.y = 0;
         animator.SetBool("isFlying", false);
+        // Rotate the CapsuleCollider to vertical
+        capsuleCollider.direction = 1; // 0 for X-axis, 1 for Y-axis, 2 for Z-axis
+        capsuleCollider.center = new Vector3(0, 1, 0); // Adjust the center if needed
     }
 
     private void FlyMovement()
@@ -368,12 +392,11 @@ public class ThirdPersonController : NetworkBehaviour
         Vector3 moveDirection = transform.right * moveX + transform.forward * moveZ;
 
         // Utilisation de la souris pour monter et descendre
-        float mouseScroll = Input.GetAxis("Mouse Y");
-        if (mouseScroll > 0)
+        if (Input.GetKey(KeyCode.Space))
         {
             moveY = 1;
         }
-        else if (mouseScroll < 0)
+        else if (Input.GetKey(KeyCode.LeftControl))
         {
             moveY = -1;
         }
@@ -383,11 +406,8 @@ public class ThirdPersonController : NetworkBehaviour
 
         // Rotation de la caméra avec la souris
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
 
         transform.Rotate(Vector3.up * mouseX);
-       
-      
     }
 
     private void HandleSprint()
@@ -414,7 +434,6 @@ public class ThirdPersonController : NetworkBehaviour
         velocity.y += gravity * Time.deltaTime;
         characterController.Move(velocity * Time.deltaTime);
     }
-
 
     private void HandlePvP()
     {
