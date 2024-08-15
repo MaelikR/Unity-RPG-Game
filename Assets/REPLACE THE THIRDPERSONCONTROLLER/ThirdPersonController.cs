@@ -9,6 +9,8 @@ public class ThirdPersonController : NetworkBehaviour
     [Header("Movement Settings")]
     public float walkSpeed = 5f;
     public float sprintSpeed = 10f;
+    public float turnSmoothTime = 0.2f;
+    public float turnSmoothVelocity = 0.2f;
     public float jumpForce = 10f;
     public float gravity = -9.81f;
     public float swimSpeed = 5f;
