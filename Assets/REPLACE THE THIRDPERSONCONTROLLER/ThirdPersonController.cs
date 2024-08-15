@@ -216,7 +216,7 @@ public class ThirdPersonController : NetworkBehaviour
 
         if (move.magnitude >= 0.1f)
         {
-            float targetAngle = Mathf.Atan2(move.x, move.z) * Mathf.Rad2Deg + cinemachineFreeLook.m_XAxis.Value;
+            float targetAngle = Mathf.Atan2(move.x, move.z) * Mathf.Rad2Deg + Camera.main.transform.eulerAngles.y;
             float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
             transform.rotation = Quaternion.Euler(0, angle, 0);
 
@@ -243,6 +243,7 @@ public class ThirdPersonController : NetworkBehaviour
             walkSoundCoroutine = null;
         }
     }
+
     private IEnumerator PlayWalkSound()
     {
         while (true)
@@ -322,13 +323,12 @@ public class ThirdPersonController : NetworkBehaviour
 
         Vector3 moveDirection = transform.right * moveX + transform.forward * moveZ;
 
-        // Utilisation de la souris pour monter et descendre
-        float mouseScroll = Input.GetAxis("Mouse Y");
-        if (mouseScroll > 0)
+        // Utilisation de la touche pour monter et descendre
+        if (Input.GetKey(KeyCode.Space))
         {
             moveY = 1;
         }
-        else if (mouseScroll < 0)
+        else if (Input.GetKey(KeyCode.LeftControl))
         {
             moveY = -1;
         }
@@ -338,8 +338,6 @@ public class ThirdPersonController : NetworkBehaviour
 
         // Rotation de la caméra avec la souris
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
-
         transform.Rotate(Vector3.up * mouseX);
     }
 
@@ -383,22 +381,13 @@ public class ThirdPersonController : NetworkBehaviour
     {
         float moveX = Input.GetAxis("Horizontal");
         float moveZ = Input.GetAxis("Vertical");
-        float moveY = 0;
+   
 
         Vector3 moveDirection = transform.right * moveX + transform.forward * moveZ;
 
-        // Utilisation de la souris pour monter et descendre
-        float mouseScroll = Input.GetAxis("Mouse Y");
-        if (mouseScroll > 0)
-        {
-            moveY = 1;
-        }
-        else if (mouseScroll < 0)
-        {
-            moveY = -1;
-        }
+       
 
-        Vector3 move = moveDirection * swimSpeed + Vector3.up * moveY * swimSpeed;
+        Vector3 move = moveDirection * swimSpeed + Vector3.up * swimSpeed;
         characterController.Move(move * Time.deltaTime);
 
         bool isMoving = move != Vector3.zero;
