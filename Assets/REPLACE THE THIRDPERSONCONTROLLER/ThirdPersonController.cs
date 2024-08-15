@@ -210,8 +210,23 @@ public class ThirdPersonController : NetworkBehaviour
         float moveZ = Input.GetAxis("Vertical");
 
         float currentSpeed = isSprinting ? sprintSpeed : walkSpeed;
-        Vector3 move = transform.right * moveX + transform.forward * moveZ;
-        characterController.Move(move * currentSpeed * Time.deltaTime);
+        Vector3 move = new Vector3(moveX, 0, moveZ).normalized;
+
+        if (move.magnitude >= 0.1f)
+        {
+            float targetAngle = Mathf.Atan2(move.x, move.z) * Mathf.Rad2Deg + cinemachineFreeLook.m_XAxis.Value;
+            float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
+            transform.rotation = Quaternion.Euler(0, angle, 0);
+
+            Vector3 moveDirection = Quaternion.Euler(0, targetAngle, 0) * Vector3.forward;
+            characterController.Move(moveDirection * currentSpeed * Time.deltaTime);
+
+            animator.SetFloat("speed", currentSpeed);
+        }
+        else
+        {
+            animator.SetFloat("speed", 0);
+        }
 
         bool isMoving = move != Vector3.zero;
         animator.SetBool("isWalking", isMoving);
@@ -226,7 +241,6 @@ public class ThirdPersonController : NetworkBehaviour
             walkSoundCoroutine = null;
         }
     }
-
     private IEnumerator PlayWalkSound()
     {
         while (true)
@@ -235,7 +249,6 @@ public class ThirdPersonController : NetworkBehaviour
             yield return new WaitForSeconds(0.5f); // Adjust the timing as needed
         }
     }
-
     private void HandleJump()
     {
         if (!isLocalPlayer || isSwimming) return;
@@ -248,7 +261,6 @@ public class ThirdPersonController : NetworkBehaviour
             audioSource.PlayOneShot(jumpSound);
         }
     }
-
     private void Ground()
     {
         isGrounded = characterController.isGrounded;
