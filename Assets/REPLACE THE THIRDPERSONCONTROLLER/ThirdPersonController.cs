@@ -11,22 +11,21 @@ public class ThirdPersonController : NetworkBehaviour
     public float sprintSpeed = 10f;
     public float jumpForce = 10f;
     public float gravity = -9.81f;
+    public float swimSpeed = 5f;
     public float flySpeed = 10f;
     private Vector3 velocity;
     private bool isGrounded;
     private bool isFlying = false;
+    private bool isSwimming = false;
     private bool isSprinting = false;
     private bool isJumping = false;
-
-    private float turnSmoothVelocity;
-    public float turnSmoothTime = 0.1f;
 
     [Header("Camera Settings")]
     public float mouseSensitivity = 100f;
 
     public LayerMask groundMask;
-    public LayerMask collisionMask;
-    private Collider waterCollider;
+    public LayerMask waterMask;
+
     public Camera distantPlayerCamera;
     public CinemachineBrain cinemachineBrain;
     public CinemachineInputProvider inputProvider;
@@ -37,8 +36,6 @@ public class ThirdPersonController : NetworkBehaviour
     private Animator animator;
     public AudioListener audioListener;
 
-    public CapsuleCollider capsuleCollider;
-
     [Header("Sound Settings")]
     public AudioClip jumpSound;
     public AudioClip walkSound;
@@ -46,12 +43,6 @@ public class ThirdPersonController : NetworkBehaviour
     public AudioClip flySound;
     private AudioSource audioSource;
     private Coroutine walkSoundCoroutine;
-
-    [Header("Swimming Settings")]
-    public float swimSpeed = 4f;
-    public LayerMask waterMask;
-
-    private bool isSwimming = false;
 
     [Header("PvP Settings")]
     public bool isPvPEnabled = false;
@@ -201,15 +192,13 @@ public class ThirdPersonController : NetworkBehaviour
     {
         if (!isLocalPlayer) return;
 
-        CheckIfSwimming();
         HandleMovement();
         Ground();
         HandleJump();
         HandleFly();
-        HandleSwimming();
+        HandleSwim();
         HandleSprint();
         HandleGravity();
-
         HandlePvP();
     }
 
@@ -221,23 +210,8 @@ public class ThirdPersonController : NetworkBehaviour
         float moveZ = Input.GetAxis("Vertical");
 
         float currentSpeed = isSprinting ? sprintSpeed : walkSpeed;
-        Vector3 move = new Vector3(moveX, 0, moveZ).normalized;
-
-        if (move.magnitude >= 0.1f)
-        {
-            float targetAngle = Mathf.Atan2(move.x, move.z) * Mathf.Rad2Deg + cinemachineFreeLook.m_XAxis.Value;
-            float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
-            transform.rotation = Quaternion.Euler(0, angle, 0);
-
-            Vector3 moveDirection = Quaternion.Euler(0, targetAngle, 0) * Vector3.forward;
-            characterController.Move(moveDirection * currentSpeed * Time.deltaTime);
-
-            animator.SetFloat("speed", currentSpeed);
-        }
-        else
-        {
-            animator.SetFloat("speed", 0);
-        }
+        Vector3 move = transform.right * moveX + transform.forward * moveZ;
+        characterController.Move(move * currentSpeed * Time.deltaTime);
 
         bool isMoving = move != Vector3.zero;
         animator.SetBool("isWalking", isMoving);
@@ -275,53 +249,6 @@ public class ThirdPersonController : NetworkBehaviour
         }
     }
 
-    private void HandleSwimming()
-    {
-        if (isSwimming)
-        {
-            SwimMovement();
-        }
-    }
-
-    private void CheckIfSwimming()
-    {
-        bool wasSwimming = isSwimming;
-
-        isSwimming = Physics.Raycast(transform.position, Vector3.down, 1f, waterMask);
-
-        if (isSwimming && !wasSwimming)
-        {
-            StartSwimming();
-        }
-        else if (!isSwimming && wasSwimming)
-        {
-            StopSwimming();
-        }
-    }
-
-    private void SwimMovement()
-    {
-        float moveX = Input.GetAxis("Horizontal");
-        float moveZ = Input.GetAxis("Vertical");
-
-        Vector3 move = transform.right * moveX + transform.forward * moveZ;
-        characterController.Move(move * swimSpeed * Time.deltaTime);
-    }
-
-    private void StartSwimming()
-    {
-        isSwimming = true;
-        animator.SetBool("isSwimming", true);
-        velocity.y = 0;
-        audioSource.PlayOneShot(swimSound);
-    }
-
-    private void StopSwimming()
-    {
-        isSwimming = false;
-        animator.SetBool("isSwimming", false);
-    }
-
     private void Ground()
     {
         isGrounded = characterController.isGrounded;
@@ -336,7 +263,7 @@ public class ThirdPersonController : NetworkBehaviour
 
     private void HandleFly()
     {
-        if (!isLocalPlayer) return;
+        if (!isLocalPlayer || isSwimming) return;
 
         if (Input.GetButtonDown("Fly"))
         {
@@ -355,10 +282,6 @@ public class ThirdPersonController : NetworkBehaviour
         {
             FlyMovement();
         }
-        else if (!isSwimming)
-        {
-            HandleMovement();
-        }
     }
 
     private void StartFlying()
@@ -366,9 +289,6 @@ public class ThirdPersonController : NetworkBehaviour
         animator.SetBool("isFlying", true);
         velocity.y = 0;
         audioSource.PlayOneShot(flySound);
-        // Rotate the CapsuleCollider to horizontal
-        capsuleCollider.direction = 2; // 0 for X-axis, 1 for Y-axis, 2 for Z-axis
-        capsuleCollider.center = new Vector3(0, 0.5f, 0); // Adjust the center if needed
     }
 
     private void StopFlying()
@@ -376,9 +296,6 @@ public class ThirdPersonController : NetworkBehaviour
         animator.SetTrigger("startFall");
         velocity.y = 0;
         animator.SetBool("isFlying", false);
-        // Rotate the CapsuleCollider to vertical
-        capsuleCollider.direction = 1; // 0 for X-axis, 1 for Y-axis, 2 for Z-axis
-        capsuleCollider.center = new Vector3(0, 1, 0); // Adjust the center if needed
     }
 
     private void FlyMovement()
@@ -392,11 +309,12 @@ public class ThirdPersonController : NetworkBehaviour
         Vector3 moveDirection = transform.right * moveX + transform.forward * moveZ;
 
         // Utilisation de la souris pour monter et descendre
-        if (Input.GetKey(KeyCode.Space))
+        float mouseScroll = Input.GetAxis("Mouse Y");
+        if (mouseScroll > 0)
         {
             moveY = 1;
         }
-        else if (Input.GetKey(KeyCode.LeftControl))
+        else if (mouseScroll < 0)
         {
             moveY = -1;
         }
@@ -406,8 +324,71 @@ public class ThirdPersonController : NetworkBehaviour
 
         // Rotation de la caméra avec la souris
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
 
         transform.Rotate(Vector3.up * mouseX);
+    }
+
+    private void HandleSwim()
+    {
+        if (!isLocalPlayer) return;
+
+        bool isInWater = Physics.CheckSphere(transform.position, 0.5f, waterMask);
+
+        if (isInWater)
+        {
+            if (!isSwimming)
+            {
+                StartSwimming();
+            }
+            SwimMovement();
+        }
+        else
+        {
+            if (isSwimming)
+            {
+                StopSwimming();
+            }
+        }
+    }
+
+    private void StartSwimming()
+    {
+        isSwimming = true;
+        animator.SetBool("isSwimming", true);
+        audioSource.PlayOneShot(swimSound);
+    }
+
+    private void StopSwimming()
+    {
+        isSwimming = false;
+        animator.SetBool("isSwimming", false);
+    }
+
+    private void SwimMovement()
+    {
+        float moveX = Input.GetAxis("Horizontal");
+        float moveZ = Input.GetAxis("Vertical");
+        float moveY = 0;
+
+        Vector3 moveDirection = transform.right * moveX + transform.forward * moveZ;
+
+        // Utilisation de la souris pour monter et descendre
+        float mouseScroll = Input.GetAxis("Mouse Y");
+        if (mouseScroll > 0)
+        {
+            moveY = 1;
+        }
+        else if (mouseScroll < 0)
+        {
+            moveY = -1;
+        }
+
+        Vector3 move = moveDirection * swimSpeed + Vector3.up * moveY * swimSpeed;
+        characterController.Move(move * Time.deltaTime);
+
+        bool isMoving = move != Vector3.zero;
+        animator.SetBool("isSwimming", isMoving);
     }
 
     private void HandleSprint()
