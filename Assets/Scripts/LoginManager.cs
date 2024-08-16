@@ -9,22 +9,22 @@ public class LoginManager : MonoBehaviour
 {
     public InputField customIdInput;
     public Text feedbackText;
-    public Text roleText;  // Ajoutez ce champ pour afficher le rôle
+    public Text roleText;  // Ajoutez ce champ pour afficher le rÃ´le
     public string titleId = ""; // Remplacez par votre TitleId
 
-    //public Configuration configuration; // Ajout de la configuration pour le client et le serveur
+    public Configuration configuration; // Ajout de la configuration pour le client et le serveur
     public NetworkManager networkManager;
-    public GameObject[] networkObjectsToActivate; // Ajoutez une liste d'objets réseau à activer
+    public GameObject[] networkObjectsToActivate; // Ajoutez une liste d'objets rÃ©seau Ã  activer
 
     void Start()
     {
-        // Définir le TitleId
+        // DÃ©finir le TitleId
         PlayFabSettings.TitleId = titleId;
 
         // Ignorer la validation des certificats (pour les tests uniquement)
         PlayFab.Internal.PlayFabWebRequest.SkipCertificateValidation();
 
-        // Vérifier les références
+        // VÃ©rifier les rÃ©fÃ©rences
         if (customIdInput == null)
         {
             UnityEngine.Debug.LogError("customIdInput is not assigned in the Inspector");
@@ -102,7 +102,7 @@ public class LoginManager : MonoBehaviour
         feedbackText.text = "Cloud script executed successfully";
         UnityEngine.Debug.Log("Cloud script executed successfully");
 
-        // Vérifier et afficher le rôle
+        // VÃ©rifier et afficher le rÃ´le
         GetUserRole();
     }
 
@@ -122,29 +122,29 @@ public class LoginManager : MonoBehaviour
 
     private void OnGetUserDataSuccess(GetUserDataResult result)
     {
-       // if (result.Data != null && result.Data.ContainsKey("UserRole"))
-        //{
-          //  string userRole = result.Data["UserRole"].Value;
-          //  roleText.text = "Role: " + userRole;
-           // UnityEngine.Debug.Log("User role: " + userRole);
+        if (result.Data != null && result.Data.ContainsKey("UserRole"))
+        {
+            string userRole = result.Data["UserRole"].Value;
+            roleText.text = "Role: " + userRole;
+            UnityEngine.Debug.Log("User role: " + userRole);
 
-            // Démarrer le client ou le serveur selon le rôle
-            //if (userRole == "admin" && configuration.buildType == BuildType.LOCAL_SERVER)
-            //{
+             //DÃ©marrer le client ou le serveur selon le rÃ´le
+            if (userRole == "admin" && configuration.buildType == BuildType.LOCAL_SERVER)
+            {
                 //ActivateNetworkObjects();
                 //networkManager.StartServer();
-            //}
-          //  else if (userRole == "player" && configuration.buildType == BuildType.LOCAL_CLIENT)
-           // {
-              //  ActivateNetworkObjects();
-              //  networkManager.StartClient();
-          //  }
-       // }
-       // else
-       // {
-          //  roleText.text = "Role: unknown";
-          //  UnityEngine.Debug.Log("User role not found");
-      //  }
+            }
+            else if (userRole == "player" && configuration.buildType == BuildType.LOCAL_CLIENT)
+            {
+                ActivateNetworkObjects();
+                networkManager.StartClient();
+            }
+        }
+        else
+        {
+            roleText.text = "Role: unknown";
+            UnityEngine.Debug.Log("User role not found");
+        }
     }
 
     private void OnGetUserDataFailure(PlayFabError error)
