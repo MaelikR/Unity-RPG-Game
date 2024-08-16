@@ -6,7 +6,7 @@ Setup Instructions
 Clone the Repository
 
 First, clone the repository to your local machine:
-git clone https://github.com/yourusername/yourrepository.git
+git clone https://github.com/MaelikR/Unity-RPG-Game.git
 
 Install Dependencies
 Mirror:
