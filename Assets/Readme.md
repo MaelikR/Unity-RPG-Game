@@ -91,19 +91,14 @@ TextMesh Pro:
 https://assetstore.unity.com/packages/essentials/beta-projects/textmesh-pro-84126
 
 Procedural Terrain Painter:
-https://assetstore.unity.com/packages/tools/terrain/procedural-terrain-painter-165172
+](https://assetstore.unity.com/packages/tools/terrain/procedural-terrain-painter-188357)
 
-ThirdPersonController:
-https://assetstore.unity.com/packages/essentials/characters/standard-assets-32351
-
-Cinemachine:
-https://assetstore.unity.com/packages/essentials/cinemachine-79898
 
 Fast Sky:
 https://assetstore.unity.com/packages/tools/visual-scripting/fast-sky-144052
 
-Simple Water Material:
-https://assetstore.unity.com/packages/tools/visual-scripting/simple-water-material-143401
+Simple Water Shader Material:
+(https://assetstore.unity.com/packages/2d/textures-materials/water/simple-water-shader-urp-191449)
 
 natepac/playfabmirrorgameexample (GitHub Repository):
 https://github.com/natepac/playfabmirrorgameexample
