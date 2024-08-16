@@ -31,7 +31,7 @@ public class ThirdPersonController : NetworkBehaviour
     public Camera distantPlayerCamera;
     public CinemachineBrain cinemachineBrain;
     public CinemachineInputProvider inputProvider;
-    public CinemachineFreeLook cinemachineFreeLook;
+
 
     [Header("Character Components")]
     public CharacterController characterController;
@@ -106,10 +106,6 @@ public class ThirdPersonController : NetworkBehaviour
             }
         }
 
-        if (cinemachineFreeLook != null)
-        {
-            cinemachineFreeLook.gameObject.SetActive(false);
-        }
 
         if (inputProvider != null)
         {
@@ -140,10 +136,6 @@ public class ThirdPersonController : NetworkBehaviour
             }
         }
 
-        if (cinemachineFreeLook != null)
-        {
-            cinemachineFreeLook.gameObject.SetActive(true);
-        }
 
         if (inputProvider != null)
         {
