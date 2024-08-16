@@ -3,6 +3,48 @@ using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
 using Cinemachine;
+/*
+ * Script Explanation: ThirdPersonController
+ *
+ * Overview:
+ * This script controls the movement, animations, and sound effects of a third-person character in a multiplayer environment using the Mirror networking library. It handles various movement states such as walking, sprinting, jumping, flying, and swimming, ensuring that the appropriate animations and sounds are played based on the player's actions.
+ *
+ * Key Sections:
+ *
+ * 1. Variables and Components:
+ *    - The script defines several public variables for movement settings, camera settings, sound settings, and PvP settings.
+ *    - The main components include `CharacterController` for handling movement, `Animator` for controlling animations, and `AudioSource` for playing sound effects.
+ *
+ * 2. Initialization:
+ *    - `OnStartLocalPlayer()` and `OnStartClient()` methods initialize the character's components and set up the player as the local player or a remote player.
+ *    - The `EnableLocalPlayerComponents()` and `DisableLocalPlayerComponents()` methods enable or disable components like cameras and input providers based on whether the player is the local player or not.
+ *
+ * 3. Movement Handling:
+ *    - `HandleMovement()`: Manages basic movement (walking and sprinting). It calculates the movement direction based on player input and updates the character's rotation and position accordingly. It also controls the walking sound, ensuring it plays only when the player is moving.
+ *    - `HandleSprint()`: Adjusts the character's speed based on whether the player is sprinting or walking.
+ *    - `HandleJump()`: Handles jumping, applying an upward force to the character's velocity and playing a jump sound.
+ *    - `HandleFly()`: Toggles flying mode, allowing the character to move freely in 3D space. The fly sound is played when the player starts flying and stopped when they land.
+ *    - `HandleSwim()`: Detects if the player is in water and manages swimming movement. The swim sound is played while the player is swimming.
+ *    - `HandleGravity()`: Applies gravity to the character's movement when they are not flying or swimming.
+ *
+ * 4. Ground Detection:
+ *    - `Ground()`: Checks if the player is on the ground using the `CharacterController.isGrounded` property. It resets the player's velocity when grounded and stops the jump animation.
+ *
+ * 5. Sound Management:
+ *    - The script plays different sounds based on the player's movement state. It uses the `AudioSource` component to play, stop, and switch between sounds such as walking, swimming, flying, and jumping.
+ *
+ * 6. PvP (Player vs Player) Mode:
+ *    - `HandlePvP()`: Toggles PvP mode when the specified key is pressed. The PvP state is reflected in an animator parameter, allowing the game to visually represent the player's PvP status.
+ *
+ * 7. Network Cleanup:
+ *    - `OnApplicationQuit()`, `CleanupPlayer()`, and `OnStopClient()` ensure that the player's networked object is properly removed when they disconnect or quit the game.
+ *
+ * 8. Coroutine Management:
+ *    - The script uses coroutines, such as in `PlayWalkSound()`, to manage repeated actions over time, like playing the walking sound at intervals.
+ *
+ * Summary:
+ * This script is designed to control a third-person character in a multiplayer game environment, handling complex movement states and their corresponding animations and sound effects. It also includes networking features to properly manage player instances across clients.
+ */
 
 public class ThirdPersonController : NetworkBehaviour
 {
@@ -195,7 +237,6 @@ public class ThirdPersonController : NetworkBehaviour
         HandleGravity();
         HandlePvP();
     }
-
     private void HandleMovement()
     {
         if (!isLocalPlayer || isFlying || isSwimming) return;
@@ -225,17 +266,16 @@ public class ThirdPersonController : NetworkBehaviour
         bool isMoving = move != Vector3.zero;
         animator.SetBool("isWalking", isMoving);
 
-        if (isMoving && walkSoundCoroutine == null)
+        if (isMoving && !audioSource.isPlaying)
         {
-            walkSoundCoroutine = StartCoroutine(PlayWalkSound());
+            audioSource.clip = walkSound;
+            audioSource.Play();
         }
-        else if (!isMoving && walkSoundCoroutine != null)
+        else if (!isMoving && audioSource.isPlaying && audioSource.clip == walkSound)
         {
-            StopCoroutine(walkSoundCoroutine);
-            walkSoundCoroutine = null;
+            audioSource.Stop();
         }
     }
-
     private IEnumerator PlayWalkSound()
     {
         while (true)
@@ -295,7 +335,9 @@ public class ThirdPersonController : NetworkBehaviour
     {
         animator.SetBool("isFlying", true);
         velocity.y = 0;
-        audioSource.PlayOneShot(flySound);
+        audioSource.Stop(); // Stop any current sound
+        audioSource.clip = flySound;
+        audioSource.Play();
     }
 
     private void StopFlying()
@@ -303,6 +345,7 @@ public class ThirdPersonController : NetworkBehaviour
         animator.SetTrigger("startFall");
         velocity.y = 0;
         animator.SetBool("isFlying", false);
+        audioSource.Stop(); // Stop the fly sound
     }
 
     private void FlyMovement()
@@ -360,13 +403,16 @@ public class ThirdPersonController : NetworkBehaviour
     {
         isSwimming = true;
         animator.SetBool("isSwimming", true);
-        audioSource.PlayOneShot(swimSound);
+        audioSource.Stop(); // Stop any current sound
+        audioSource.clip = swimSound;
+        audioSource.Play();
     }
 
     private void StopSwimming()
     {
         isSwimming = false;
         animator.SetBool("isSwimming", false);
+        audioSource.Stop(); // Stop the swim sound
     }
 
     private void SwimMovement()
