@@ -91,7 +91,7 @@ TextMesh Pro:
 https://assetstore.unity.com/packages/essentials/beta-projects/textmesh-pro-84126
 
 Procedural Terrain Painter:
-](https://assetstore.unity.com/packages/tools/terrain/procedural-terrain-painter-188357)
+(https://assetstore.unity.com/packages/tools/terrain/procedural-terrain-painter-188357)
 
 
 Fast Sky:
