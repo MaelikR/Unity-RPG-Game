@@ -8,9 +8,10 @@ Fix Controller Fly Camera (rotation and fix movement with cinemachine virtual ca
 Fix Login Manager (input field with login validation)
 Fix Chat Manager (fix inputfield+output message client rpc and command server function)
 Fix Objective Manager (fix text and linked main objective of the game style vanilla)
+
+
+
 Setup Instructions
-
-
 Clone the Repository: First, clone the repository to your local machine:
 
 (A): git clone https://github.com/MaelikR/playfabmirrorgameexample.git Or clone this depot: git clone https://github.com/natepac/playfabmirrorgameexample.git (B): Next add folder Asset from here: https://github.com/MaelikR/Unity-RPG-Game/archive/refs/heads/main.zip (C): Open the project in Unity 2021.3.8f1 or Unity 2021.3.39f1 (Note: Other higher versions of unity do not work properly with the original depot backend you need to customize the code and update the Playfab plus Mirror API and custom configuration files). (D): Follow the steps in the repository for the Playfab, Mirror configuration. (E) Video Tutorial (Part 1): https://youtu.be/Q90bylFXtNY 10. Install Dependencies Mirror: Download and import Mirror from the Unity Asset Store. PlayFab SDK: Download the PlayFab SDK and import it into your Unity project. TextMesh Pro: Download and import TextMesh Pro from the Unity Asset Store. Procedural Terrain Painter: Download and import Procedural Terrain Painter from the Unity Asset Store.
