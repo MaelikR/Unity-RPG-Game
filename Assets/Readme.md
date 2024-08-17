@@ -3,12 +3,11 @@ This project is based on the example from natepac/playfabmirrorgameexample and i
 
 Setup Instructions
 
-Clone the Repository
+Clone the Repository: First, clone the repository to your local machine:
 
-First, clone the repository to your local machine:
-(A): git clone https://github.com/MaelikR/playfabmirrorgameexample.git Or clone this depot: git clone https://github.com/natepac/playfabmirrorgameexample.git (B): Next add folder Asset from here: https://github.com/MaelikR/Unity-RPG-Game/archive/refs/heads/main.zip (C): Open the project in Unity 2021.3.8f1 or Unity 2021.3.39f1 (Note: Other higher versions of unity do not work properly with the original depot backend you need to customize the code and update the Playfab plus Mirror API and custom configuration files).
+(A): git clone https://github.com/MaelikR/playfabmirrorgameexample.git Or clone this depot: git clone https://github.com/natepac/playfabmirrorgameexample.git (B): Next add folder Asset from here: https://github.com/MaelikR/Unity-RPG-Game/archive/refs/heads/main.zip (C): Open the project in Unity 2021.3.8f1 or Unity 2021.3.39f1 (Note: Other higher versions of unity do not work properly with the original depot backend you need to customize the code and update the Playfab plus Mirror API and custom configuration files). (D): Follow the steps in the repository for the Playfab, Mirror configuration. (E) Video Tutorial (Part 1): https://youtu.be/Q90bylFXtNY 10. Install Dependencies Mirror: Download and import Mirror from the Unity Asset Store. PlayFab SDK: Download the PlayFab SDK and import it into your Unity project. TextMesh Pro: Download and import TextMesh Pro from the Unity Asset Store. Procedural Terrain Painter: Download and import Procedural Terrain Painter from the Unity Asset Store.
 
-Install Dependencies
+Install Dependencies (Secondary method)
 Mirror:
 
 Mirror is the networking library that powers the multiplayer functionality of the game. It simplifies the creation of networked games by providing a robust framework for handling networked objects and communication.
