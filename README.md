@@ -161,6 +161,7 @@ First, clone the repository to your local machine:
 Or clone this depot: git clone https://github.com/natepac/playfabmirrorgameexample.git
 (B): Next add folder Asset from here: https://github.com/MaelikR/Unity-RPG-Game/archive/refs/heads/main.zip
 (C): Open the project in Unity 2021.3.8f1 or Unity 2021.3.39f1 (Note: Other higher versions of unity do not work properly with the original depot backend you need to customize the code and update the Playfab plus Mirror API and custom configuration files).
+(D): Follow the steps in the repository for the Playfab, Mirror configuration.
 
 10. Install Dependencies
 Mirror:
