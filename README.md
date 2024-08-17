@@ -37,6 +37,7 @@ Welcome to the RPG GAME project! This document will guide you through the variou
 1. Table of Contents
 The Table of Contents provides a structured outline of the document.
 
+
 2. Features
 RPG GAME boasts several key features that make it an exciting and engaging experience:
 
@@ -66,6 +67,7 @@ RPG GAME boasts several key features that make it an exciting and engaging exper
 
 -Day/Night with extensible Fast Sky shader
 
+
 3. Configure PlayFab
 Setting up PlayFab involves several steps:
 
@@ -78,6 +80,7 @@ Enter your PlayFab Title ID and Secret Key.
 Follow the PlayFab setup guide to configure authentication and backend services.
 
 This integration enables powerful backend functionalities such as user authentication and data management.
+
 
 4. Configure Mirror
 To enable multiplayer functionality, you need to set up Mirror:
@@ -92,8 +95,10 @@ Follow the Mirror documentation for detailed setup instructions.
 
 Mirror simplifies the process of adding multiplayer features to your game.
 
+
 5. Building the Project
 This section explains how to build the project for different platforms. You will create executable files that can be distributed and run on various devices.
+
 
 6. Client Build
 To build the client-side of the project:
@@ -112,6 +117,7 @@ This creates the executable file that players will use to play the game.
 
 ![image](https://github.com/user-attachments/assets/f7c6cc52-553a-4b41-aae0-6501bfbb1266)
 
+
 7. Server Build
 To build the server-side of the project:
 
@@ -128,6 +134,7 @@ Configure Player Settings, ensuring Headless Mode is enabled.
 Click Build and choose a location to save the server build.
 
 This creates an executable optimized for running on a server to handle multiplayer sessions.
+
 
 8. Custom Features
 Our RPG GAME includescustom features (Unity Default Assets:
@@ -154,15 +161,17 @@ Seamless integration and easy setup.
 
 9. Setup Instructions
 
+
 Clone the Repository:
 First, clone the repository to your local machine:
+
 
 (A): git clone https://github.com/MaelikR/playfabmirrorgameexample.git
 Or clone this depot: git clone https://github.com/natepac/playfabmirrorgameexample.git
 (B): Next add folder Asset from here: https://github.com/MaelikR/Unity-RPG-Game/archive/refs/heads/main.zip
 (C): Open the project in Unity 2021.3.8f1 or Unity 2021.3.39f1 (Note: Other higher versions of unity do not work properly with the original depot backend you need to customize the code and update the Playfab plus Mirror API and custom configuration files).
 (D): Follow the steps in the repository for the Playfab, Mirror configuration.
-
+(E) Video Tutorial (Part 1): https://youtu.be/Q90bylFXtNY
 10. Install Dependencies
 Mirror:
 Download and import Mirror from the Unity Asset Store.
@@ -174,14 +183,15 @@ Procedural Terrain Painter:
 Download and import Procedural Terrain Painter from the Unity Asset Store.
 
 
+
 ThirdPersonController:
 Download and import ThirdPersonController from the Unity Asset Store.
 
 ![image](https://github.com/user-attachments/assets/585f4377-c787-411d-ab3d-d3398327d175)
 
-12. Video Tutorial Part 1: https://youtu.be/Q90bylFXtNY
 
-13. Credits:
+
+12. Credits:
 This project uses code and concepts from:
 
 |natepac/playfabmirrorgameexample: https://mirror-networking.com/](https://github.com/natepac/playfabmirrorgameexample)
