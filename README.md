@@ -199,6 +199,7 @@ This project uses code and concepts from:
 |Mirror Networking: https://mirror-networking.com/
 
 |PlayFab: https://playfab.com/
+https://assetstore.unity.com/packages/tools/utilities/extensions-for-playfab-177350
 
 |TextMesh Pro : Unity Free Assets
 
