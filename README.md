@@ -157,7 +157,12 @@ Seamless integration and easy setup.
 Clone the Repository:
 First, clone the repository to your local machine:
 
-git clone https://github.com/MaelikR/Unity-RPG-Game.git
+(A) 
+git clone https://github.com/MaelikR/playfabmirrorgameexample.git
+or clone this: git clone https://github.com/natepac/playfabmirrorgameexample.git
+(B)
+Next add folder Asset from here: https://github.com/MaelikR/Unity-RPG-Game/archive/refs/heads/main.zip
+(C)
 Open the project in Unity.
 
 10. Install Dependencies
