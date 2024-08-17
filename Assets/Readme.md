@@ -107,7 +107,9 @@ https://mirror-networking.com/docs/
 
 PlayFab Setup Guide:
 https://docs.microsoft.com/en-us/gaming/playfab/
+https://assetstore.unity.com/packages/tools/utilities/extensions-for-playfab-177350
 
 License
 Include any licensing information here.
+
 M.RenDev
