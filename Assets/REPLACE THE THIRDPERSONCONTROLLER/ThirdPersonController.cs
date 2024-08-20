@@ -45,35 +45,32 @@ using Cinemachine;
  * Summary:
  * This script is designed to control a third-person character in a multiplayer game environment, handling complex movement states and their corresponding animations and sound effects. It also includes networking features to properly manage player instances across clients.
  */
-
 public class ThirdPersonController : NetworkBehaviour
 {
+    #region Variables
+
     [Header("Movement Settings")]
     public float walkSpeed = 5f;
     public float sprintSpeed = 10f;
     public float turnSmoothTime = 0.2f;
-    public float turnSmoothVelocity = 0.2f;
     public float jumpForce = 10f;
     public float gravity = -9.81f;
     public float swimSpeed = 5f;
     public float flySpeed = 10f;
-    private Vector3 velocity;
-    private bool isGrounded;
-    private bool isFlying = false;
-    private bool isSwimming = false;
-    private bool isSprinting = false;
-    private bool isJumping = false;
+    public float waterSurfaceLevel = 0.0f;
+    private PlayerData playerData;
 
     [Header("Camera Settings")]
     public float mouseSensitivity = 100f;
-
     public LayerMask groundMask;
     public LayerMask waterMask;
-
     public Camera distantPlayerCamera;
+
+    [Header("Cinemachine Cameras")]
+    public CinemachineVirtualCamera followCamera;
+    public CinemachineVirtualCamera orbitalCamera;
     public CinemachineBrain cinemachineBrain;
     public CinemachineInputProvider inputProvider;
-
 
     [Header("Character Components")]
     public CharacterController characterController;
@@ -85,6 +82,8 @@ public class ThirdPersonController : NetworkBehaviour
     public AudioClip walkSound;
     public AudioClip swimSound;
     public AudioClip flySound;
+    public AudioClip pvpActivateSound;
+    public AudioClip pvpDeactivateSound;
     private AudioSource audioSource;
     private Coroutine walkSoundCoroutine;
 
@@ -92,105 +91,435 @@ public class ThirdPersonController : NetworkBehaviour
     public bool isPvPEnabled = false;
     public KeyCode togglePvPKey = KeyCode.Comma;
     public Animator pvpAnimator;
+    private float pvpCooldown = 5f;
+    private float lastPvPToggleTime = -5f;
+
+    private Vector3 velocity;
+    private bool isGrounded;
+    private bool isFlying = false;
+    private bool isSwimming = false;
+    private bool isSprinting = false;
+    private bool isJumping = false;
+
+    private static List<ThirdPersonController> players = new List<ThirdPersonController>();
+
+    #endregion
+
+    #region Initialization
 
     public override void OnStartLocalPlayer()
     {
         base.OnStartLocalPlayer();
-        UnityEngine.Debug.Log("Local player started");
-
-        characterController = GetComponent<CharacterController>();
-        animator = GetComponent<Animator>();
-        audioSource = GetComponent<AudioSource>();
-
-        if (characterController == null)
-        {
-            UnityEngine.Debug.LogError("CharacterController component is missing!");
-        }
-        if (animator == null)
-        {
-            UnityEngine.Debug.LogError("Animator component is missing!");
-        }
-        if (audioSource == null)
-        {
-            UnityEngine.Debug.LogError("AudioSource component is missing!");
-        }
-
+        InitializeComponents();
         EnableLocalPlayerComponents();
+        Debug.Log("Local player started");
     }
 
     public override void OnStartClient()
     {
         base.OnStartClient();
-        UnityEngine.Debug.Log("Client started");
-
         if (!isLocalPlayer)
         {
-            UnityEngine.Debug.Log("This is not the local player");
             DisableLocalPlayerComponents();
+            Debug.Log("This is not the local player");
         }
     }
 
-    private void DisableLocalPlayerComponents()
+    private void InitializeComponents()
     {
-        if (distantPlayerCamera != null)
-        {
-            distantPlayerCamera.gameObject.SetActive(false);
-        }
+        characterController = GetComponent<CharacterController>();
+        animator = GetComponent<Animator>();
+        audioSource = GetComponent<AudioSource>();
 
-        if (cinemachineBrain != null)
-        {
-            cinemachineBrain.enabled = false;
-
-            CinemachineVirtualCamera[] virtualCameras = cinemachineBrain.GetComponentsInChildren<CinemachineVirtualCamera>(true);
-            foreach (CinemachineVirtualCamera vc in virtualCameras)
-            {
-                vc.enabled = false;
-            }
-        }
-
-
-        if (inputProvider != null)
-        {
-            inputProvider.enabled = false;
-        }
-
-        if (characterController != null)
-        {
-            characterController.enabled = false;
-        }
+        if (!characterController) Debug.LogError("CharacterController component is missing!");
+        if (!animator) Debug.LogError("Animator component is missing!");
+        if (!audioSource) Debug.LogError("AudioSource component is missing!");
     }
 
     private void EnableLocalPlayerComponents()
     {
-        if (distantPlayerCamera != null)
-        {
-            distantPlayerCamera.gameObject.SetActive(true);
-        }
+        distantPlayerCamera?.gameObject.SetActive(true);
+        EnableCinemachineComponents();
+        characterController.enabled = true;
+    }
 
-        if (cinemachineBrain != null)
+    private void DisableLocalPlayerComponents()
+    {
+        distantPlayerCamera?.gameObject.SetActive(false);
+        DisableCinemachineComponents();
+        characterController.enabled = false;
+    }
+
+    private void EnableCinemachineComponents()
+    {
+        if (cinemachineBrain)
         {
             cinemachineBrain.enabled = true;
-
-            CinemachineVirtualCamera[] virtualCameras = cinemachineBrain.GetComponentsInChildren<CinemachineVirtualCamera>(true);
-            foreach (CinemachineVirtualCamera vc in virtualCameras)
-            {
-                vc.enabled = true;
-            }
+            ToggleCinemachineCameras(true);
         }
+        inputProvider.enabled = true;
+    }
 
-
-        if (inputProvider != null)
+    private void DisableCinemachineComponents()
+    {
+        if (cinemachineBrain)
         {
-            inputProvider.enabled = true;
+            cinemachineBrain.enabled = false;
+            ToggleCinemachineCameras(false);
         }
+        inputProvider.enabled = false;
+    }
 
-        if (characterController != null)
+    private void ToggleCinemachineCameras(bool state)
+    {
+        foreach (var vc in cinemachineBrain.GetComponentsInChildren<CinemachineVirtualCamera>(true))
         {
-            characterController.enabled = true;
+            vc.enabled = state;
         }
     }
 
-    void OnApplicationQuit()
+    #endregion
+
+    #region Update Methods
+
+    private void Update()
+    {
+        if (!isLocalPlayer) return;
+
+        HandleMovement();
+        HandleGrounding();
+        HandleJump();
+        HandleFly();
+        HandleSwim();
+        HandleSprint();
+        HandleGravity();
+        HandlePvP();
+    }
+
+    private void HandleMovement()
+    {
+        if (isFlying || isSwimming) return;
+
+        float moveX = Input.GetAxis("Horizontal");
+        float moveZ = Input.GetAxis("Vertical");
+
+        Vector3 moveDirection = new Vector3(moveX, 0, moveZ).normalized;
+        RotateCharacterWithMouse();
+
+        if (moveDirection.magnitude >= 0.1f)
+        {
+            MoveCharacter(moveDirection);
+            PlayWalkingSound();
+        }
+        else
+        {
+            StopWalkingSound();
+        }
+
+        bool isMoving = moveDirection != Vector3.zero;
+        animator.SetBool("isWalking", isMoving);
+    }
+    void Start()
+    {
+        // Initialize playerData or retrieve it from wherever it's stored.
+        playerData = new PlayerData
+        {
+            Mana = 100,
+            Strength = 10,
+            Agility = 15,
+            Intelligence = 20
+        };
+    }
+    /// <summary>
+    /// Applies gravity to the character when not flying or swimming.
+    /// This method continuously increases the downward velocity of the character,
+    /// simulating the effect of gravity. It also moves the character downwards based on the calculated velocity.
+    /// </summary>
+    private void ApplyGravity()
+    {
+        // Check if the method should apply gravity: skip if not the local player, or if the character is flying or swimming.
+        if (!isLocalPlayer || isFlying || isSwimming) return;
+
+        // Increase the downward velocity over time to simulate gravity. The gravity value is negative.
+        velocity.y += gravity * Time.deltaTime;
+
+        // Move the character controller downwards based on the updated velocity.
+        characterController.Move(velocity * Time.deltaTime);
+    }
+
+    public PlayerData GetPlayerData()
+    {
+        return playerData;
+    }
+
+    private void RotateCharacterWithMouse()
+    {
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
+        transform.Rotate(Vector3.up * mouseX);
+    }
+
+    private void MoveCharacter(Vector3 direction)
+    {
+        float currentSpeed = isSprinting ? sprintSpeed : walkSpeed;
+        Vector3 move = transform.forward * direction.z + transform.right * direction.x;
+        characterController.Move(move * currentSpeed * Time.deltaTime);
+        animator.SetFloat("speed", currentSpeed);
+    }
+
+    private void HandleJump()
+    {
+        if (isSwimming) return;
+
+        if (Input.GetButtonDown("Jump") && isGrounded && !isFlying && !isJumping)
+        {
+            Jump();
+        }
+
+        ApplyGravity();
+    }
+
+    private void Jump()
+    {
+        animator.SetTrigger("Jump");
+        velocity.y = Mathf.Sqrt(jumpForce * -2f * gravity);
+        isJumping = true;
+        audioSource.PlayOneShot(jumpSound);
+        StartCoroutine(ResetJumpFlag());
+    }
+
+    private IEnumerator ResetJumpFlag()
+    {
+        yield return new WaitForSeconds(0.1f);
+        isJumping = false;
+    }
+
+    private void HandleGrounding()
+    {
+        isGrounded = characterController.isGrounded;
+        animator.SetBool("isGrounded", isGrounded);
+
+        if (isGrounded && velocity.y < 0)
+        {
+            velocity.y = -2f;
+            isJumping = false;
+            animator.ResetTrigger("Jump");
+        }
+    }
+
+    private void HandleFly()
+    {
+        if (isSwimming) return;
+
+        if (Input.GetButtonDown("Fly"))
+        {
+            ToggleFlying();
+        }
+
+        if (isFlying)
+        {
+            FlyMovement();
+        }
+    }
+
+    private void ToggleFlying()
+    {
+        isFlying = !isFlying;
+        if (isFlying)
+        {
+            StartFlying();
+        }
+        else
+        {
+            StopFlying();
+        }
+    }
+
+    private void StartFlying()
+    {
+        animator.SetBool("isFlying", true);
+        velocity.y = 0;
+        PlaySound(flySound);
+    }
+
+    private void StopFlying()
+    {
+        animator.SetTrigger("startFall");
+        velocity.y = 0;
+        animator.SetBool("isFlying", false);
+        StopSound();
+    }
+
+    private void FlyMovement()
+    {
+        float moveX = Input.GetAxis("Horizontal");
+        float moveZ = Input.GetAxis("Vertical");
+
+        float moveY = Input.GetKey(KeyCode.Space) ? 1 : Input.GetKey(KeyCode.LeftControl) ? -1 : 0;
+
+        Vector3 moveDirection = transform.right * moveX + transform.forward * moveZ + Vector3.up * moveY;
+        characterController.Move(moveDirection * flySpeed * Time.deltaTime);
+
+        AdjustCameraDuringFlight();
+    }
+
+    private void AdjustCameraDuringFlight()
+    {
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+
+        transform.Rotate(Vector3.up * mouseX);
+        Camera.main.transform.Rotate(Vector3.right * -mouseY);
+
+        Vector3 currentEulerAngles = Camera.main.transform.localEulerAngles;
+        currentEulerAngles.x = Mathf.Clamp(currentEulerAngles.x, -60f, 60f);
+        Camera.main.transform.localEulerAngles = currentEulerAngles;
+    }
+
+    private void HandleSwim()
+    {
+        bool isInWater = Physics.CheckSphere(transform.position, 0.5f, waterMask);
+
+        if (isInWater)
+        {
+            if (!isSwimming)
+            {
+                StartSwimming();
+            }
+            SwimMovement();
+        }
+        else if (isSwimming)
+        {
+            StopSwimming();
+        }
+    }
+
+    private void StartSwimming()
+    {
+        isSwimming = true;
+        animator.SetBool("isSwimming", true);
+        PlaySound(swimSound);
+    }
+
+    private void StopSwimming()
+    {
+        isSwimming = false;
+        animator.SetBool("isSwimming", false);
+        StopSound();
+    }
+
+    private void SwimMovement()
+    {
+        float moveX = Input.GetAxis("Horizontal");
+        float moveZ = Input.GetAxis("Vertical");
+
+        Vector3 moveDirection = transform.right * moveX + transform.forward * moveZ;
+
+        if (transform.position.y < waterSurfaceLevel)
+        {
+            moveDirection.y = Input.GetKey(KeyCode.Space) ? swimSpeed : Input.GetKey(KeyCode.LeftControl) ? -swimSpeed : 0;
+        }
+        else
+        {
+            moveDirection.y = -swimSpeed * 0.5f;
+        }
+
+        characterController.Move(moveDirection * swimSpeed * Time.deltaTime);
+        animator.SetBool("isSwimming", moveDirection != Vector3.zero);
+    }
+
+    private void HandleSprint()
+    {
+        if (isSwimming) return;
+
+        isSprinting = Input.GetButton("Sprint");
+    }
+
+    private void HandleGravity()
+    {
+        if (isFlying || isSwimming) return;
+
+        velocity.y += gravity * Time.deltaTime;
+        characterController.Move(velocity * Time.deltaTime);
+    }
+
+    private void HandlePvP()
+    {
+        if (Time.time - lastPvPToggleTime < pvpCooldown) return;
+
+        if (Input.GetKeyDown(togglePvPKey))
+        {
+            TogglePvP();
+        }
+    }
+
+    private void TogglePvP()
+    {
+        isPvPEnabled = !isPvPEnabled;
+        lastPvPToggleTime = Time.time;
+
+        pvpAnimator?.SetTrigger(isPvPEnabled ? "PvPEnabled" : "PvPDisabled");
+
+        GetComponent<Renderer>().material.color = isPvPEnabled ? Color.red : Color.white;
+        PlaySound(isPvPEnabled ? pvpActivateSound : pvpDeactivateSound);
+
+        if (isServer)
+        {
+            RpcNotifyPvPStatus(isPvPEnabled);
+        }
+
+        ShowPvPStatusUI(isPvPEnabled);
+    }
+
+    private void ShowPvPStatusUI(bool isPvPEnabled)
+    {
+        string status = isPvPEnabled ? "PvP Enabled" : "PvP Disabled";
+        UIManager.Instance.ShowNotification(status);
+    }
+
+    [ClientRpc]
+    private void RpcNotifyPvPStatus(bool isPvPEnabled)
+    {
+        string playerName = GetComponent<Player>().playerName;
+        string status = isPvPEnabled ? "enabled PvP" : "disabled PvP";
+        UIManager.Instance.ShowGlobalNotification($"{playerName} has {status}!");
+    }
+
+    #endregion
+
+    #region Sound Management
+
+    private void PlayWalkingSound()
+    {
+        if (!audioSource.isPlaying || audioSource.clip != walkSound)
+        {
+            PlaySound(walkSound);
+        }
+    }
+
+    private void StopWalkingSound()
+    {
+        if (audioSource.isPlaying && audioSource.clip == walkSound)
+        {
+            StopSound();
+        }
+    }
+
+    private void PlaySound(AudioClip clip)
+    {
+        audioSource.clip = clip;
+        audioSource.Play();
+    }
+
+    private void StopSound()
+    {
+        audioSource.Stop();
+    }
+
+    #endregion
+
+    #region Cleanup
+
+    private void OnApplicationQuit()
     {
         if (isServer)
         {
@@ -198,16 +527,14 @@ public class ThirdPersonController : NetworkBehaviour
         }
     }
 
-    void CleanupPlayer()
+    private void CleanupPlayer()
     {
         RemovePlayer(this);
         NetworkServer.Destroy(gameObject);
     }
 
-    private static List<ThirdPersonController> players = new List<ThirdPersonController>();
-
     [Server]
-    void RemovePlayer(ThirdPersonController player)
+    private void RemovePlayer(ThirdPersonController player)
     {
         if (players.Contains(player))
         {
@@ -224,248 +551,5 @@ public class ThirdPersonController : NetworkBehaviour
         }
     }
 
-    private void Update()
-    {
-        if (!isLocalPlayer) return;
-
-        HandleMovement();
-        Ground();
-        HandleJump();
-        HandleFly();
-        HandleSwim();
-        HandleSprint();
-        HandleGravity();
-        HandlePvP();
-    }
-    private void HandleMovement()
-    {
-        if (!isLocalPlayer || isFlying || isSwimming) return;
-
-        float moveX = Input.GetAxis("Horizontal");
-        float moveZ = Input.GetAxis("Vertical");
-
-        float currentSpeed = isSprinting ? sprintSpeed : walkSpeed;
-        Vector3 move = new Vector3(moveX, 0, moveZ).normalized;
-
-        if (move.magnitude >= 0.1f)
-        {
-            float targetAngle = Mathf.Atan2(move.x, move.z) * Mathf.Rad2Deg + Camera.main.transform.eulerAngles.y;
-            float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
-            transform.rotation = Quaternion.Euler(0, angle, 0);
-
-            Vector3 moveDirection = Quaternion.Euler(0, targetAngle, 0) * Vector3.forward;
-            characterController.Move(moveDirection * currentSpeed * Time.deltaTime);
-
-            animator.SetFloat("speed", currentSpeed);
-        }
-        else
-        {
-            animator.SetFloat("speed", 0);
-        }
-
-        bool isMoving = move != Vector3.zero;
-        animator.SetBool("isWalking", isMoving);
-
-        if (isMoving && !audioSource.isPlaying)
-        {
-            audioSource.clip = walkSound;
-            audioSource.Play();
-        }
-        else if (!isMoving && audioSource.isPlaying && audioSource.clip == walkSound)
-        {
-            audioSource.Stop();
-        }
-    }
-    private IEnumerator PlayWalkSound()
-    {
-        while (true)
-        {
-            audioSource.PlayOneShot(walkSound);
-            yield return new WaitForSeconds(0.5f); // Adjust the timing as needed
-        }
-    }
-    private void HandleJump()
-    {
-        if (!isLocalPlayer || isSwimming) return;
-
-        if (Input.GetButtonDown("Jump") && isGrounded && !isFlying && !isJumping)
-        {
-            animator.SetTrigger("Jump");
-            velocity.y = Mathf.Sqrt(jumpForce * -2f * gravity);
-            isJumping = true;
-            audioSource.PlayOneShot(jumpSound);
-        }
-    }
-    private void Ground()
-    {
-        isGrounded = characterController.isGrounded;
-        animator.SetBool("isGrounded", isGrounded);
-        if (isGrounded && velocity.y < 0)
-        {
-            velocity.y = -2f;
-            isJumping = false;
-            animator.ResetTrigger("Jump");
-        }
-    }
-
-    private void HandleFly()
-    {
-        if (!isLocalPlayer || isSwimming) return;
-
-        if (Input.GetButtonDown("Fly"))
-        {
-            isFlying = !isFlying;
-            if (isFlying)
-            {
-                StartFlying();
-            }
-            else
-            {
-                StopFlying();
-            }
-        }
-
-        if (isFlying)
-        {
-            FlyMovement();
-        }
-    }
-
-    private void StartFlying()
-    {
-        animator.SetBool("isFlying", true);
-        velocity.y = 0;
-        audioSource.Stop(); // Stop any current sound
-        audioSource.clip = flySound;
-        audioSource.Play();
-    }
-
-    private void StopFlying()
-    {
-        animator.SetTrigger("startFall");
-        velocity.y = 0;
-        animator.SetBool("isFlying", false);
-        audioSource.Stop(); // Stop the fly sound
-    }
-
-    private void FlyMovement()
-    {
-        if (!isLocalPlayer) return;
-
-        float moveX = Input.GetAxis("Horizontal");
-        float moveZ = Input.GetAxis("Vertical");
-        float moveY = 0;
-
-        Vector3 moveDirection = transform.right * moveX + transform.forward * moveZ;
-
-        // Utilisation de la touche pour monter et descendre
-        if (Input.GetKey(KeyCode.Space))
-        {
-            moveY = 1;
-        }
-        else if (Input.GetKey(KeyCode.LeftControl))
-        {
-            moveY = -1;
-        }
-
-        Vector3 move = moveDirection * flySpeed + Vector3.up * moveY * flySpeed;
-        characterController.Move(move * Time.deltaTime);
-
-        // Rotation de la caméra avec la souris
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        transform.Rotate(Vector3.up * mouseX);
-    }
-
-    private void HandleSwim()
-    {
-        if (!isLocalPlayer) return;
-
-        bool isInWater = Physics.CheckSphere(transform.position, 0.5f, waterMask);
-
-        if (isInWater)
-        {
-            if (!isSwimming)
-            {
-                StartSwimming();
-            }
-            SwimMovement();
-        }
-        else
-        {
-            if (isSwimming)
-            {
-                StopSwimming();
-            }
-        }
-    }
-
-    private void StartSwimming()
-    {
-        isSwimming = true;
-        animator.SetBool("isSwimming", true);
-        audioSource.Stop(); // Stop any current sound
-        audioSource.clip = swimSound;
-        audioSource.Play();
-    }
-
-    private void StopSwimming()
-    {
-        isSwimming = false;
-        animator.SetBool("isSwimming", false);
-        audioSource.Stop(); // Stop the swim sound
-    }
-
-    private void SwimMovement()
-    {
-        float moveX = Input.GetAxis("Horizontal");
-        float moveZ = Input.GetAxis("Vertical");
-   
-
-        Vector3 moveDirection = transform.right * moveX + transform.forward * moveZ;
-
-       
-
-        Vector3 move = moveDirection * swimSpeed + Vector3.up * swimSpeed;
-        characterController.Move(move * Time.deltaTime);
-
-        bool isMoving = move != Vector3.zero;
-        animator.SetBool("isSwimming", isMoving);
-    }
-
-    private void HandleSprint()
-    {
-        if (!isLocalPlayer || isSwimming) return;
-
-        isSprinting = Input.GetButton("Sprint");
-
-        float currentSpeed = isSprinting ? sprintSpeed : walkSpeed;
-
-        float moveX = Input.GetAxis("Horizontal");
-        float moveZ = Input.GetAxis("Vertical");
-
-        Vector3 move = transform.right * moveX + transform.forward * moveZ;
-        characterController.Move(move * currentSpeed * Time.deltaTime);
-
-        animator.SetFloat("speed", move.magnitude * currentSpeed);
-    }
-
-    private void HandleGravity()
-    {
-        if (!isLocalPlayer || isFlying || isSwimming) return;
-
-        velocity.y += gravity * Time.deltaTime;
-        characterController.Move(velocity * Time.deltaTime);
-    }
-
-    private void HandlePvP()
-    {
-        if (Input.GetKeyDown(togglePvPKey))
-        {
-            isPvPEnabled = !isPvPEnabled;
-            if (pvpAnimator != null)
-            {
-                pvpAnimator.SetBool("isPvPEnabled", isPvPEnabled);
-            }
-        }
-    }
+    #endregion
 }
