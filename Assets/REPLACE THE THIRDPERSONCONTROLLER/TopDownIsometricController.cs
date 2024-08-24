@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
 using Cinemachine;
+using UnityEngine.InputSystem;
 
 public class TopDownIsometricController : NetworkBehaviour
 {
@@ -72,8 +73,24 @@ public class TopDownIsometricController : NetworkBehaviour
         InitializeComponents();
         EnableLocalPlayerComponents();
         Debug.Log("Local player started");
+        SetupCinemachine();
     }
+    private void SetupCinemachine()
+    {
+        if (followCamera != null)
+        {
+            // Associer la caméra Cinemachine au joueur local
+            followCamera.Follow = transform;
+            followCamera.LookAt = transform;
+        }
 
+        if (orbitalCamera != null)
+        {
+            // Si vous utilisez également une caméra orbitale, vous pouvez l'associer de la même manière
+            orbitalCamera.Follow = transform;
+            orbitalCamera.LookAt = transform;
+        }
+    }
     public override void OnStartClient()
     {
         base.OnStartClient();
@@ -116,7 +133,20 @@ public class TopDownIsometricController : NetworkBehaviour
             cinemachineBrain.enabled = true;
             ToggleCinemachineCameras(true);
         }
-        inputProvider.enabled = true;
+
+        if (inputProvider)
+        {
+            inputProvider.enabled = true;
+
+            // Créez un InputAction et liez-le
+            InputAction action = new InputAction(type: InputActionType.Value, binding: "<Mouse>/delta");
+
+            // Convertissez en InputActionReference
+            InputActionReference actionReference = InputActionReference.Create(action);
+
+            inputProvider.XYAxis = actionReference;
+        }
+
     }
 
     private void DisableCinemachineComponents()
@@ -159,32 +189,60 @@ public class TopDownIsometricController : NetworkBehaviour
     {
         if (isFlying || isSwimming) return;
 
+        // Check if the player is grounded
+        isGrounded = characterController.isGrounded;
+
+        if (isGrounded && velocity.y < 0)
+        {
+            velocity.y = -2f; // Ensure the player sticks to the ground
+        }
+
+        // Get movement input
         float moveX = Input.GetAxis("Horizontal");
         float moveZ = Input.GetAxis("Vertical");
 
-        // Pour une vue isométrique, la direction de déplacement doit être transformée en fonction de la caméra
-        Vector3 moveDirection = new Vector3(moveX, 0, moveZ).normalized;
+        // Calculate movement direction
+        Vector3 move = transform.right * moveX + transform.forward * moveZ;
 
-        // On fait pivoter le personnage pour qu'il regarde dans la direction du mouvement
-        if (moveDirection.magnitude >= 0.1f)
+        // Apply movement based on input and sprinting state
+        MoveCharacter(move);
+
+        // Adjust the camera and character rotation during ground movement
+        AdjustCameraAndCharacterRotation(move);
+
+        // Apply gravity
+        ApplyGravity();  // Use the method to apply gravity
+
+        // Update animator state based on movement
+        bool isMoving = move != Vector3.zero;
+        animator.SetBool("isWalking", isMoving);
+
+        if (isMoving)
         {
-            RotateCharacterTowardsMovementDirection(moveDirection);
-            MoveCharacter(moveDirection);
             PlayWalkingSound();
         }
         else
         {
             StopWalkingSound();
         }
-
-        bool isMoving = moveDirection != Vector3.zero;
-        animator.SetBool("isWalking", isMoving);
     }
 
-    private void RotateCharacterTowardsMovementDirection(Vector3 direction)
+    private void AdjustCameraAndCharacterRotation(Vector3 moveDirection)
     {
-        Quaternion targetRotation = Quaternion.LookRotation(direction);
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, turnSmoothTime);
+        // Rotation du personnage basé sur la direction du mouvement
+        if (moveDirection != Vector3.zero)
+        {
+            float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
+
+            // Rotation horizontale du personnage
+            transform.Rotate(Vector3.up * mouseX);
+
+            // Ajuster l'angle de la caméra en fonction du mouvement vertical de la souris
+            float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+            float newCameraRotationX = followCamera.transform.localEulerAngles.x - mouseY;
+            newCameraRotationX = Mathf.Clamp(newCameraRotationX, -60f, 60f);
+            followCamera.transform.localEulerAngles = new Vector3(newCameraRotationX, followCamera.transform.localEulerAngles.y, 0);
+        }
     }
 
     private void MoveCharacter(Vector3 direction)
@@ -306,22 +364,18 @@ public class TopDownIsometricController : NetworkBehaviour
 
     private void AdjustCameraDuringFlight()
     {
-        // Get mouse inputs
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
 
-        // Rotate the character horizontally based on mouse X movement
+        // Rotation horizontale du personnage
         transform.Rotate(Vector3.up * mouseX);
 
-        // Calculate new vertical rotation for the camera
-        float newCameraRotationX = Camera.main.transform.localEulerAngles.x - mouseY;
-
-        // Clamp the camera's vertical rotation to avoid extreme angles
+        // Ajuster l'angle de la caméra en fonction du mouvement vertical de la souris
+        float newCameraRotationX = followCamera.transform.localEulerAngles.x - mouseY;
         newCameraRotationX = Mathf.Clamp(newCameraRotationX, -60f, 60f);
-
-        // Apply the new camera rotation
-        Camera.main.transform.localEulerAngles = new Vector3(newCameraRotationX, Camera.main.transform.localEulerAngles.y, 0);
+        followCamera.transform.localEulerAngles = new Vector3(newCameraRotationX, followCamera.transform.localEulerAngles.y, 0);
     }
+
     private void ApplyGravity()
     {
         // Check if the method should apply gravity: skip if not the local player, or if the character is flying or swimming.
