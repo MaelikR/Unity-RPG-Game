@@ -60,7 +60,7 @@ public class TopDownIsometricController : NetworkBehaviour
     private bool isSprinting = false;
     private bool isJumping = false;
 
-    private static List<TopDownIsometricController> players = new List<TopDownIsometricController>();
+    private static List<ThirdPersonController> players = new List<ThirdPersonController>();
 
     #endregion
 
@@ -205,7 +205,10 @@ public class TopDownIsometricController : NetworkBehaviour
 
         ApplyGravity();
     }
-
+    public PlayerData GetPlayerData()
+    {
+        return playerData;
+    }
     private void Jump()
     {
         animator.SetTrigger("Jump");
@@ -319,6 +322,17 @@ public class TopDownIsometricController : NetworkBehaviour
         // Apply the new camera rotation
         Camera.main.transform.localEulerAngles = new Vector3(newCameraRotationX, Camera.main.transform.localEulerAngles.y, 0);
     }
+    private void ApplyGravity()
+    {
+        // Check if the method should apply gravity: skip if not the local player, or if the character is flying or swimming.
+        if (!isLocalPlayer || isFlying || isSwimming) return;
+
+        // Increase the downward velocity over time to simulate gravity. The gravity value is negative.
+        velocity.y += gravity * Time.deltaTime;
+
+        // Move the character controller downwards based on the updated velocity.
+        characterController.Move(velocity * Time.deltaTime);
+    }
 
     private void HandleSwim()
     {
@@ -378,7 +392,6 @@ public class TopDownIsometricController : NetworkBehaviour
 
         isSprinting = Input.GetButton("Sprint");
     }
-
     private void HandleGravity()
     {
         if (isFlying || isSwimming) return;
@@ -386,6 +399,7 @@ public class TopDownIsometricController : NetworkBehaviour
         velocity.y += gravity * Time.deltaTime;
         characterController.Move(velocity * Time.deltaTime);
     }
+  
 
     private void HandlePvP()
     {
@@ -479,7 +493,7 @@ public class TopDownIsometricController : NetworkBehaviour
     }
 
     [Server]
-    private void RemovePlayer(TopDownIsometricController player)
+    private void RemovePlayer(ThirdPersonController player)
     {
         if (players.Contains(player))
         {
