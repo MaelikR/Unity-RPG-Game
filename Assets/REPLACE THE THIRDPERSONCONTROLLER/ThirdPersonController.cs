@@ -196,39 +196,64 @@ public class ThirdPersonController : NetworkBehaviour
         HandlePvP();
     }
 
-    private void HandleMovement()
-    {
+   private void HandleMovement()
+   {
         if (isFlying || isSwimming) return;
-
+    
+        // Check if the player is grounded
+        isGrounded = characterController.isGrounded;
+    
+        if (isGrounded && velocity.y < 0)
+        {
+            velocity.y = -2f; // Ensure the player sticks to the ground
+        }
+    
+        // Get movement input
         float moveX = Input.GetAxis("Horizontal");
         float moveZ = Input.GetAxis("Vertical");
-
-        Vector3 moveDirection = new Vector3(moveX, 0, moveZ).normalized;
-        RotateCharacterWithMouse();
-
-        if (moveDirection.magnitude >= 0.1f)
+    
+        // Calculate movement direction
+        Vector3 move = transform.right * moveX + transform.forward * moveZ;
+    
+        // Apply movement based on input and sprinting state
+        MoveCharacter(move);
+    
+        // Adjust the camera and character rotation during ground movement
+        AdjustCameraAndCharacterRotation(move);
+    
+        // Apply gravity
+        ApplyGravity();  // Use the method to apply gravity
+    
+        // Update animator state based on movement
+        bool isMoving = move != Vector3.zero;
+        animator.SetBool("isWalking", isMoving);
+    
+        if (isMoving)
         {
-            MoveCharacter(moveDirection);
             PlayWalkingSound();
         }
         else
         {
             StopWalkingSound();
         }
-
-        bool isMoving = moveDirection != Vector3.zero;
-        animator.SetBool("isWalking", isMoving);
     }
-    void Start()
+    
+    private void AdjustCameraAndCharacterRotation(Vector3 moveDirection)
     {
-        // Initialize playerData or retrieve it from wherever it's stored.
-        playerData = new PlayerData
+        // Rotation du personnage basé sur la direction du mouvement
+        if (moveDirection != Vector3.zero)
         {
-            Mana = 100,
-            Strength = 10,
-            Agility = 15,
-            Intelligence = 20
-        };
+            float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
+    
+            // Rotation horizontale du personnage
+            transform.Rotate(Vector3.up * mouseX);
+    
+            // Ajuster l'angle de la caméra en fonction du mouvement vertical de la souris
+            float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+            float newCameraRotationX = followCamera.transform.localEulerAngles.x - mouseY;
+            newCameraRotationX = Mathf.Clamp(newCameraRotationX, -60f, 60f);
+            followCamera.transform.localEulerAngles = new Vector3(newCameraRotationX, followCamera.transform.localEulerAngles.y, 0);
+        }
     }
     /// <summary>
     /// Applies gravity to the character when not flying or swimming.
@@ -250,20 +275,6 @@ public class ThirdPersonController : NetworkBehaviour
     public PlayerData GetPlayerData()
     {
         return playerData;
-    }
-
-    private void RotateCharacterWithMouse()
-    {
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        transform.Rotate(Vector3.up * mouseX);
-    }
-
-    private void MoveCharacter(Vector3 direction)
-    {
-        float currentSpeed = isSprinting ? sprintSpeed : walkSpeed;
-        Vector3 move = transform.forward * direction.z + transform.right * direction.x;
-        characterController.Move(move * currentSpeed * Time.deltaTime);
-        animator.SetFloat("speed", currentSpeed);
     }
 
     private void HandleJump()
