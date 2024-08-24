@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.AI;
 using System.Collections;
 using UnityEngine.UI;
 using Mirror;
@@ -55,7 +54,6 @@ public class SkeletonAI : NetworkBehaviour
     private bool isGrounded = false;
     private bool isIdle = false;
     private bool canAttack = true;
-    private NavMeshAgent navMeshAgent;
     private Transform modelTransform;
     private Camera mainCamera;
     private Transform playerTransform;
@@ -67,17 +65,11 @@ public class SkeletonAI : NetworkBehaviour
         currentHealth = maxHealth;
         animator = GetComponent<Animator>();
         modelTransform = transform;
-        navMeshAgent = GetComponent<NavMeshAgent>();
         audioSource = GetComponent<AudioSource>();
         musicSource = gameObject.AddComponent<AudioSource>();
         musicSource.loop = true;
         musicSource.clip = patrolMusic;
         musicSource.Play();
-
-        if (navMeshAgent != null)
-        {
-            navMeshAgent.speed = moveSpeed;
-        }
 
         mainCamera = Camera.main;
 
@@ -122,18 +114,7 @@ public class SkeletonAI : NetworkBehaviour
             }
         }
 
-        if (navMeshAgent.velocity.magnitude > 0.1f && isGrounded)
-        {
-            Vector3 direction = navMeshAgent.velocity.normalized;
-            Quaternion targetRotation = Quaternion.LookRotation(direction, Vector3.up);
-            modelTransform.rotation = Quaternion.Slerp(modelTransform.rotation, targetRotation, Time.deltaTime * 10f);
-        }
-
-        if (!isGrounded)
-        {
-            velocity.y -= gravity * Time.deltaTime;
-            transform.position += velocity * Time.deltaTime;
-        }
+        ApplyGravity();
     }
 
     void CheckGroundStatus()
@@ -171,7 +152,7 @@ public class SkeletonAI : NetworkBehaviour
         }
         else
         {
-            navMeshAgent.SetDestination(waypoints[currentWaypointIndex].position);
+            MoveTowardsTarget(waypoints[currentWaypointIndex].position);
 
             if (Vector3.Distance(transform.position, waypoints[currentWaypointIndex].position) < 0.2f)
             {
@@ -181,28 +162,6 @@ public class SkeletonAI : NetworkBehaviour
         }
     }
 
-    IEnumerator IdlePause()
-    {
-        isIdle = true;
-        animator.SetBool("isMoving", false);
-        yield return new WaitForSeconds(idleTime);
-        isIdle = false;
-    }
-
-    IEnumerator IdleAndTurnAround()
-    {
-        isIdle = true;
-        animator.SetBool("isMoving", false);
-        yield return new WaitForSeconds(idleTime);
-        isIdle = false;
-        currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.Length;
-    }
-
-    bool IsObstacleDetected()
-    {
-        return Physics.Raycast(transform.position, transform.forward, obstacleDetectionDistance, obstacleLayer);
-    }
-
     void ChasePlayer()
     {
         if (currentPlayerTarget == null || !isGrounded) return;
@@ -210,7 +169,7 @@ public class SkeletonAI : NetworkBehaviour
         StopCoroutine(IdlePause());
         isIdle = false;
         animator.SetBool("isMoving", true);
-        navMeshAgent.SetDestination(currentPlayerTarget.position);
+        MoveTowardsTarget(currentPlayerTarget.position);
 
         if (musicSource.clip != combatMusic)
         {
@@ -238,11 +197,60 @@ public class SkeletonAI : NetworkBehaviour
         }
     }
 
-    IEnumerator AttackCooldown()
+    void MoveTowardsTarget(Vector3 targetPosition)
     {
-        canAttack = false;
-        yield return new WaitForSeconds(attackCooldown);
-        canAttack = true;
+        Vector3 direction = (targetPosition - transform.position).normalized;
+        direction.y = 0; // Keep the movement on the XZ plane
+        Vector3 move = direction * moveSpeed * Time.deltaTime;
+
+        // Apply movement on X and Z axis
+        transform.position += new Vector3(move.x, 0, move.z);
+
+        // Check the ground beneath the skeleton
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position + Vector3.up, Vector3.down, out hit, 10f, groundLayer))
+        {
+            // Adjust the position based on the height of the terrain
+            transform.position = new Vector3(transform.position.x, hit.point.y, transform.position.z);
+        }
+
+        // Rotate the skeleton towards the movement direction
+        if (direction != Vector3.zero)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(direction, Vector3.up);
+            modelTransform.rotation = Quaternion.Slerp(modelTransform.rotation, targetRotation, Time.deltaTime * 10f);
+        }
+    }
+
+    IEnumerator IdlePause()
+    {
+        isIdle = true;
+        animator.SetBool("isMoving", false);
+        yield return new WaitForSeconds(idleTime);
+        isIdle = false;
+    }
+
+    IEnumerator IdleAndTurnAround()
+    {
+        isIdle = true;
+        animator.SetBool("isMoving", false);
+        yield return new WaitForSeconds(idleTime);
+        isIdle = false;
+        currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.Length;
+    }
+
+    bool IsObstacleDetected()
+    {
+        return Physics.Raycast(transform.position, transform.forward, obstacleDetectionDistance, obstacleLayer);
+    }
+
+    void ApplyGravity()
+    {
+        if (!isGrounded)
+        {
+            velocity.y -= gravity * Time.deltaTime;
+            transform.position += velocity * Time.deltaTime;
+        }
     }
 
     void DealDamageToPlayer()
@@ -254,13 +262,6 @@ public class SkeletonAI : NetworkBehaviour
         {
             playerHealth.TakeDamage(attackDamage, gameObject);
         }
-    }
-
-    void OnDrawGizmosSelected()
-    {
-        if (groundCheck == null) return;
-        Gizmos.color = Color.red;
-        Gizmos.DrawSphere(groundCheck.position, groundCheckRadius);
     }
 
     Transform GetClosestPlayer()
@@ -282,12 +283,11 @@ public class SkeletonAI : NetworkBehaviour
         return closestPlayer;
     }
 
-    public void RegisterPlayer(GameObject player)
+    IEnumerator AttackCooldown()
     {
-        if (player != null && player.transform != null)
-        {
-            playerTransform = player.transform;
-        }
+        canAttack = false;
+        yield return new WaitForSeconds(attackCooldown);
+        canAttack = true;
     }
 
     IEnumerator FadeInMusic(AudioClip newClip)
@@ -331,5 +331,18 @@ public class SkeletonAI : NetworkBehaviour
                 yield return null;
             }
         }
+    }
+    public void RegisterPlayer(GameObject player)
+    {
+        if (player != null)
+        {
+            playerTransform = player.transform;
+        }
+    }
+    void OnDrawGizmosSelected()
+    {
+        if (groundCheck == null) return;
+        Gizmos.color = Color.red;
+        Gizmos.DrawSphere(groundCheck.position, groundCheckRadius);
     }
 }
