@@ -2,10 +2,48 @@ using Mirror;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+/*
+ * -----------------------------------------------------------------------------
+ *  Project:        RPG Game
+ *  Script:         ChatManager.cs
+ *  Description:    Handles the chat functionality in the game, including message
+ *                  input, display, and network synchronization. The chat UI is 
+ *                  updated in real-time and includes features like cursor lock 
+ *                  management.
+ * 
+ *  Author:         [Your Name]
+ *  Date:           [Date]
+ *  Version:        1.0 (Debugging in Progress)
+ * 
+ *  Unity Version:  [Unity Version]
+ *  Mirror Version: [Mirror Version]
+ * 
+ *  Status:         DEBUGGING IN PROGRESS
+ *                  - Actively working on resolving issues related to network 
+ *                    synchronization and UI behavior.
+ *                  - Known issues include: [List any known issues, e.g., "Cursor
+ *                    may not lock correctly after sending a message."]
+ * 
+ *  Usage:          Attach this script to a GameObject in your scene that 
+ *                  contains the UI elements for the chat. Ensure that the 
+ *                  necessary components (InputField, Text, ScrollRect) are 
+ *                  properly assigned in the inspector.
+ * 
+ *  Notes:          - The script is in active development and debugging. Expect 
+ *                    changes and possible issues as debugging progresses.
+ *                  - This script relies on Mirror for networking and requires 
+ *                    proper setup of networked objects in the scene.
+ * 
+ *  -----------------------------------------------------------------------------
+ *  License:        This script is provided as-is during the debugging phase. 
+ *                  Modify it freely for your project needs, but be aware that 
+ *                  some features may not be fully functional.
+ * -----------------------------------------------------------------------------
+ */
 
 public class ChatManager : NetworkBehaviour
 {
-    public GameObject chatPanel; // Panel contenant les éléments UI du chat
+    public GameObject chatPanel; // Panel contenant les Ã©lÃ©ments UI du chat
     public InputField chatInputField;
     public Text chatDisplay;
     public ScrollRect scrollRect;
@@ -18,11 +56,11 @@ public class ChatManager : NetworkBehaviour
         {
             chatInputField.onSubmit.AddListener(OnSubmit);
             chatInputField.onValueChanged.AddListener(OnInputFieldClicked);
-            SetChatUIInteractive(true); // Activer les éléments interactifs du UI du chat pour le joueur local
+            SetChatUIInteractive(true); // Activer les Ã©lÃ©ments interactifs du UI du chat pour le joueur local
         }
         else
         {
-            SetChatUIInteractive(false); // Désactiver les éléments interactifs du UI du chat pour les joueurs distants
+            SetChatUIInteractive(false); // DÃ©sactiver les Ã©lÃ©ments interactifs du UI du chat pour les joueurs distants
         }
     }
 
@@ -30,20 +68,8 @@ public class ChatManager : NetworkBehaviour
     {
         if (chatPanel != null)
         {
-            chatInputField.enabled = isInteractive; // Activer/désactiver l'interaction avec le champ de saisie
-            // Désactiver d'autres composants interactifs si nécessaire
-        }
-    }
-
-    void OnSubmit(string input)
-    {
-        if (!isLocalPlayer) return;
-
-        // Vérifie si la touche Enter a été pressée et si le champ de saisie a perdu le focus
-        if (EventSystem.current.currentSelectedGameObject == chatInputField.gameObject && !string.IsNullOrEmpty(input))
-        {
-            SendMessage();
-            LockCursor(true);
+            chatInputField.enabled = isInteractive; // Activer/dÃ©sactiver l'interaction avec le champ de saisie
+            // DÃ©sactiver d'autres composants interactifs si nÃ©cessaire
         }
     }
 
@@ -52,7 +78,23 @@ public class ChatManager : NetworkBehaviour
         if (!isLocalPlayer) return;
 
         LockCursor(false);
+        chatInputField.ActivateInputField(); // Activer le champ de saisie
     }
+
+    void OnSubmit(string input)
+    {
+        if (!isLocalPlayer) return;
+
+        if (EventSystem.current.currentSelectedGameObject == chatInputField.gameObject && !string.IsNullOrEmpty(input))
+        {
+            if (!string.IsNullOrWhiteSpace(input)) // Ã‰viter l'envoi de messages vides ou contenant seulement des espaces
+            {
+                SendMessage();
+            }
+            LockCursor(true);
+        }
+    }
+
 
     public void SendMessage()
     {
@@ -82,7 +124,7 @@ public class ChatManager : NetworkBehaviour
         {
             chatDisplay.text += message + "\n";
             Canvas.ForceUpdateCanvases();
-            scrollRect.verticalNormalizedPosition = 0f; // Assurez-vous que la position du défilement est mise à jour correctement.
+            scrollRect.verticalNormalizedPosition = 0f; // Assurez-vous que la position du dÃ©filement est mise Ã  jour correctement.
         }
     }
 
