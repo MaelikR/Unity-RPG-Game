@@ -14,13 +14,13 @@ using System.Collections;
  *                  PlayFab and UI updates via Unity's UI system. Syncs objective 
  *                  data across the network using Mirror.
  * 
- *  Author:         [Your Name]
- *  Date:           [Date]
- *  Version:        1.0
+ *  Author:         M.Ren
+ *  Date:           [25/08/2024]
+ *  Version:        1.0 (Debugging in Progress)
  * 
- *  Unity Version:  [Unity Version]
- *  Mirror Version: [Mirror Version]
- *  PlayFab SDK:    [PlayFab SDK Version]
+ *  Unity Version:  [2021.3.8]
+ *  Mirror Version: [Mirror 2022.9.15]
+ *  PlayFab SDK:    [PlayFab SDK 2.152.221010]
  * 
  *  Usage:          Attach this script to an empty GameObject in the scene.
  *                  Ensure that the necessary UI Text components are assigned 
