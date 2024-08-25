@@ -347,11 +347,11 @@ public class TopDownIsometricController : NetworkBehaviour
         float moveY = 0;
         if (Input.GetKey(KeyCode.Space))
         {
-            moveY = 1;
+            moveY = 0.56f;
         }
         else if (Input.GetKey(KeyCode.LeftControl))
         {
-            moveY = -1;
+            moveY = -0.56f;
         }
 
         // Calculate the move direction based on input
@@ -565,4 +565,15 @@ public class TopDownIsometricController : NetworkBehaviour
     }
 
     #endregion
+    void Awake()
+    {
+        // Initialize the PlayerData with some values
+        playerData = new PlayerData()
+        {
+            Mana = 100,
+            Strength = 20,
+            Agility = 15,
+            Intelligence = 25
+        };
+    }
 }
