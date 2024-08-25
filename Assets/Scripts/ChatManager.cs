@@ -11,12 +11,12 @@ using UnityEngine.EventSystems;
  *                  updated in real-time and includes features like cursor lock 
  *                  management.
  * 
- *  Author:         [Your Name]
- *  Date:           [Date]
+ *  Author:         M.Ren
+ *  Date:           [25/08/2024]
  *  Version:        1.0 (Debugging in Progress)
  * 
- *  Unity Version:  [Unity Version]
- *  Mirror Version: [Mirror Version]
+ *  Unity Version:  [2021.3.8]
+ *  Mirror Version: [Mirror 2022.9.15]
  * 
  *  Status:         DEBUGGING IN PROGRESS
  *                  - Actively working on resolving issues related to network 
