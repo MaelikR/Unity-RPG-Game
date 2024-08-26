@@ -8,7 +8,7 @@ public class RetrievePlayFabId : MonoBehaviour
     {
         PlayFabClientAPI.LoginWithCustomID(new LoginWithCustomIDRequest
         {
-            CustomId = "1236547891117",
+            CustomId = "",
             CreateAccount = true
         }, OnLoginSuccess, OnLoginFailure);
     }
