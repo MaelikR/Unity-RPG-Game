@@ -92,3 +92,38 @@ Network Synchronization: For scripts involving network interactions (e.g., Healt
 Dependency Management: Some scripts, like ServerStartUp.cs, are dependent on external services (e.g., PlayFab). Ensure all external dependencies are properly configured and integrated.
 
 Customization: Scripts like ExampleNetworkAuthenticator.cs are templates and may need to be customized to fit the specific needs of your game.
+
+Camera Logic (for TriggerBoxAction.cs and TriggerBoxActionTravellingLinearZoom.cs and future other camera and text trigger scripts)
+
+The following scripts are designed to manage camera movements and effects within the game, providing dynamic and immersive experiences for players. These camera scripts are essential for creating cinematic moments, guiding player focus, and enhancing the overall visual storytelling of the game.
+
+Camera Traveling
+
+Purpose: Handles linear camera movement from one point to another. This script is commonly used for smooth transitions between different scenes or to follow a target object.
+Details: The camera moves along a straight path using linear interpolation (Lerp) between two predefined points. The script also allows for the adjustment of the camera's speed and the option to ease in or ease out of the movement for a more natural feel.
+Usage: Ideal for cutscenes or guided tours where the camera needs to follow a predetermined path.
+CameraZoom.cs
+
+Purpose: Controls the zooming functionality of the camera, allowing the camera to smoothly zoom in and out on a target.
+Details: This script adjusts the camera's Field of View (FOV) over time to create a zoom effect. It can be used to focus on specific objects or to transition between different scenes with a zoom effect.
+Usage: Typically used to draw attention to critical elements in the game, such as a new area or an important object, or to create a dramatic effect by zooming in on a character's face.
+Panorama Camera
+
+Purpose: Enables panoramic camera movement, allowing the camera to sweep across a scene horizontally or vertically.
+Details: The script rotates the camera around a pivot point, creating a sweeping view of the environment. This is particularly effective for showcasing large landscapes or to give players a sense of the scale of the world.
+Usage: Commonly used in establishing shots or to reveal hidden areas by panning the camera across the scene.
+Orbit Camera
+
+Purpose: Allows the camera to orbit around a specific target, maintaining a fixed distance while rotating around it.
+Details: The camera's position is calculated based on the target's position and the desired orbit radius. The script supports both horizontal and vertical orbiting, making it versatile for various scenarios.
+Usage: Perfect for character selection screens, where the camera needs to rotate around the player character, or in gameplay where the camera needs to keep an enemy or object in view from different angles.
+Dynamic Camera Switch
+
+Purpose: Manages switching between different camera perspectives dynamically during gameplay.
+Details: This script allows for smooth transitions between multiple camera setups, whether they are static, following, or cinematic cameras. The transitions can be triggered based on gameplay events, such as entering a new area or starting a dialogue.
+Usage: Essential for games that require multiple camera perspectives, such as first-person to third-person transitions, or switching to a cinematic view during critical moments.
+Camera Control Workflow
+Integration: The camera scripts are designed to be modular, allowing them to be easily integrated into various parts of the game. They can be triggered by player input, in-game events, or through other scripts.
+Optimization: To ensure smooth performance, especially in large scenes or on lower-end hardware, it is crucial to optimize camera transitions and avoid unnecessary calculations. Scripts should be profiled and tested under different conditions to ensure they do not negatively impact the frame rate.
+Customization: Each script is built with flexibility in mind, providing developers with options to adjust parameters such as speed, zoom level, and rotation angles directly in the Unity editor. This allows for quick iteration and fine-tuning to achieve the desired cinematic effect.
+
