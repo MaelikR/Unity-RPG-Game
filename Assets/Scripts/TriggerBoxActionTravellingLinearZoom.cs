@@ -8,7 +8,7 @@ using System.Diagnostics;
 /*
  * =============================================================
  * Script: TriggerBoxActionTravellingLinearZoom
- * Author: M.Ren]
+ * Author: M.Ren
  * Date: [26/08/2024]
  * 
  * Description:
