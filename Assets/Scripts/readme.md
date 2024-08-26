@@ -119,6 +119,8 @@ Details: The camera's position is calculated based on the target's position and 
 Usage: Perfect for character selection screens, where the camera needs to rotate around the player character, or in gameplay where the camera needs to keep an enemy or object in view from different angles.
 Dynamic Camera Switch
 
+![image](https://github.com/user-attachments/assets/09ddb1d2-04f5-4513-8bc3-b3c86d18da00)
+
 Purpose: Manages switching between different camera perspectives dynamically during gameplay.
 Details: This script allows for smooth transitions between multiple camera setups, whether they are static, following, or cinematic cameras. The transitions can be triggered based on gameplay events, such as entering a new area or starting a dialogue.
 Usage: Essential for games that require multiple camera perspectives, such as first-person to third-person transitions, or switching to a cinematic view during critical moments.
