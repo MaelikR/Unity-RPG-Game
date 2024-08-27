@@ -22,9 +22,6 @@ public class Health : NetworkBehaviour
     {
         if (!isLocalPlayer || isDead) return;
 
-        ThirdPersonController attackerController = attacker.GetComponent<ThirdPersonController>();
-        if (attackerController != null && !attackerController.isPvPEnabled) return;
-
         currentHealth -= damage;
         UnityEngine.Debug.Log($"Current Health: {currentHealth} after taking {damage} damage");
         UpdateHealthBar(maxHealth, currentHealth);
@@ -49,7 +46,7 @@ public class Health : NetworkBehaviour
 
     private void Die()
     {
-        if (isDead) return;
+        if (!isServer || isDead) return;
 
         isDead = true;
         if (gameObject.CompareTag("Player"))
@@ -95,6 +92,7 @@ public class Health : NetworkBehaviour
     IEnumerator DelayDeactivate()
     {
         yield return new WaitForSeconds(1f);
+        // Here you can add logic to deactivate or destroy the object
     }
 
     private void PlayDamageFeedback()
