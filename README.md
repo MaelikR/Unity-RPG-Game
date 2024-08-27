@@ -62,7 +62,7 @@ RPG GAME boasts several key features that make it an exciting and engaging exper
 
 -TriggerBox with area effet camera travelling "Lore" mode
 
--SkeletonAI (skeleton of AI structure full customisable) for basic enemy with Navmesh of Unity Engine
+-SkeletonAI (skeleton of AI structure full customisable) for basic enemy with Navmesh of Unity Engine and unstructured AI script without navmesh for fast placement of mobs
 
 -FFAI (testing AI neutral at debug)
 
