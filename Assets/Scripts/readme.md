@@ -141,3 +141,54 @@ Integration: The camera scripts are designed to be modular, allowing them to be 
 Optimization: To ensure smooth performance, especially in large scenes or on lower-end hardware, it is crucial to optimize camera transitions and avoid unnecessary calculations. Scripts should be profiled and tested under different conditions to ensure they do not negatively impact the frame rate.
 Customization: Each script is built with flexibility in mind, providing developers with options to adjust parameters such as speed, zoom level, and rotation angles directly in the Unity editor. This allows for quick iteration and fine-tuning to achieve the desired cinematic effect.
 
+
+GameSecurityManager.cs
+
+Overview:
+GameSecurityManager.cs is a comprehensive security script designed to protect an online multiplayer game built in Unity. This script integrates several layers of security, including session management via PlayFab, network security through Mirror, and real-time monitoring to detect and prevent cheating and unauthorized access.
+
+-Features
+PlayFab Integration:
+
+Handles secure login and session management using PlayFab's LoginWithCustomID method.
+Uses session tickets to validate player sessions.
+Anti-Cheat Mechanisms:
+
+Game Integrity Verification: Ensures that the game's version and critical files have not been tampered with, using SHA256 hashing for file integrity checks.
+Real-Time Activity Monitoring: Detects unusual player behaviors such as speed hacks and unauthorized teleportation.
+Input Validation: Monitors and validates player inputs to detect macros or automated bots.
+Network Security:
+
+DDoS Protection: Monitors connection attempts and prevents DDoS attacks by limiting the number of connections from a single IP.
+Data Encryption Setup: Placeholder for implementing SSL/TLS data encryption to protect communications between client and server.
+Access Control:
+
+Automatically blocks access to the game if suspicious activities are detected.
+Installation
+Prerequisites:
+
+Unity 2020.3 or later.
+PlayFab SDK integrated into your Unity project.
+Mirror Networking package.
+Setup:
+
+Attach the GameSecurityManager.cs script to a GameObject in your main scene.
+Ensure that the NetworkManager component is properly assigned in the script.
+Replace "YourPlayFabTitleID" with your actual PlayFab Title ID.
+Adjust the settings in the script (such as speed thresholds, file paths, and hash values) to fit your game's requirements.
+Usage
+Start the Game: On game start, GameSecurityManager initializes the connection to PlayFab and sets up security measures, including anti-cheat systems and network protection.
+Real-Time Monitoring: The script continuously monitors player behavior and verifies the integrity of game data during runtime.
+Access Blocking: If any unauthorized behavior is detected, the game will automatically close, blocking further access for the user.
+Customization
+Game Version Check: Modify the version comparison in VerifyGameIntegrity() to match your game's actual version.
+File Integrity: Customize the file path and expected hash in IsFileIntegrityValid() to protect specific game files.
+Speed and Teleportation Monitoring: Adjust the thresholds in MonitorSpeedHack() and MonitorTeleportation() based on your game’s movement mechanics.
+Limitations
+Data Encryption: The SetupDataEncryption() method is a placeholder and requires implementation based on the specific encryption needs of your project.
+Server-Side Validation: While the script provides client-side checks, consider implementing server-side validation for critical operations.
+Contributing
+Contributions are welcome! Please feel free to submit a pull request or open an issue if you encounter any bugs or have suggestions for improvements.
+
+License
+This project is licensed under the MIT License.
