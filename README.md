@@ -32,7 +32,7 @@ Welcome to the RPG GAME project! This repository contains the complete setup for
 
 
 RPG GAME Project
-Welcome to the RPG GAME project! This document will guide you through the various aspects of the project, from setup instructions to detailed feature descriptions, ensuring you have everything you need to get started and understand the project's structure.
+This document will guide you through the various aspects of the project, from setup instructions to detailed feature descriptions, ensuring you have everything you need to get started and understand the project's structure.
 
 
 1. Table of Contents
