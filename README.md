@@ -54,7 +54,7 @@ RPG GAME boasts several key features that make it an exciting and engaging exper
 
 -PvP sauvage for fun with "G" key :)
 
--Full customisable netwoked third person controller with camera cinemachine
+-Full customisable netwoked third person controller & top down controller with camera cinemachine
 
 -Spell attack with TAB lock (in-progress) + left click
 
