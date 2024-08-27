@@ -43,110 +43,58 @@ using UnityEngine.EventSystems;
 
 public class ChatManager : NetworkBehaviour
 {
-    public GameObject chatPanel; // Panel contenant les éléments UI du chat
     public InputField chatInputField;
     public Text chatDisplay;
     public ScrollRect scrollRect;
-
-    private bool isCursorLocked = true;
 
     void Start()
     {
         if (isLocalPlayer)
         {
-            chatInputField.onSubmit.AddListener(OnSubmit);
-            chatInputField.onValueChanged.AddListener(OnInputFieldClicked);
-            SetChatUIInteractive(true); // Activer les éléments interactifs du UI du chat pour le joueur local
-        }
-        else
-        {
-            SetChatUIInteractive(false); // Désactiver les éléments interactifs du UI du chat pour les joueurs distants
+            chatInputField.onEndEdit.AddListener(HandleChatSubmit);
         }
     }
 
-    void SetChatUIInteractive(bool isInteractive)
+    void HandleChatSubmit(string input)
     {
-        if (chatPanel != null)
-        {
-            chatInputField.enabled = isInteractive; // Activer/désactiver l'interaction avec le champ de saisie
-            // Désactiver d'autres composants interactifs si nécessaire
-        }
-    }
+        if (!isLocalPlayer || string.IsNullOrWhiteSpace(input)) return;
 
-    void OnInputFieldClicked(string input)
-    {
-        if (!isLocalPlayer) return;
-
-        LockCursor(false);
-        chatInputField.ActivateInputField(); // Activer le champ de saisie
-    }
-
-    void OnSubmit(string input)
-    {
-        if (!isLocalPlayer) return;
-
-        if (EventSystem.current.currentSelectedGameObject == chatInputField.gameObject && !string.IsNullOrEmpty(input))
-        {
-            if (!string.IsNullOrWhiteSpace(input)) // Éviter l'envoi de messages vides ou contenant seulement des espaces
-            {
-                SendMessage();
-            }
-            LockCursor(true);
-        }
-    }
-
-
-    public void SendMessage()
-    {
-        if (!isLocalPlayer || string.IsNullOrEmpty(chatInputField.text))
-            return;
-
-        string message = $"[{NetworkClient.connection.identity.netId}] {chatInputField.text}";
-        UnityEngine.Debug.Log($"Sending message: {message}");
-        CmdSendMessage(message);
+        SendMessageToServer(input);
         chatInputField.text = string.Empty;
-        chatInputField.ActivateInputField();
+        chatInputField.ActivateInputField(); // Keep the input field active after sending the message
     }
 
     [Command]
-    void CmdSendMessage(string message)
+    void SendMessageToServer(string message)
     {
-        UnityEngine.Debug.Log($"CmdSendMessage called with message: {message}");
-        RpcReceiveMessage(message);
+        if (NetworkClient.isConnected)
+        {
+            string formattedMessage = $"[{NetworkClient.connection.identity.netId}] {message}";
+            RpcReceiveMessage(formattedMessage);
+        }
+        else
+        {
+            Debug.LogWarning("Tried to send a message but the client is not connected.");
+        }
     }
+
 
     [ClientRpc]
     void RpcReceiveMessage(string message)
     {
-        UnityEngine.Debug.Log($"RpcReceiveMessage called with message: {message}");
-
         if (chatDisplay != null)
         {
             chatDisplay.text += message + "\n";
             Canvas.ForceUpdateCanvases();
-            scrollRect.verticalNormalizedPosition = 0f; // Assurez-vous que la position du défilement est mise à jour correctement.
+            if (scrollRect != null)
+            {
+                scrollRect.verticalNormalizedPosition = 0f; // Scroll to the bottom
+            }
         }
-    }
-
-    private void LockCursor(bool lockCursor)
-    {
-        isCursorLocked = lockCursor;
-        Cursor.lockState = lockCursor ? CursorLockMode.Locked : CursorLockMode.None;
-        Cursor.visible = !lockCursor;
-    }
-
-    void Update()
-    {
-        if (!isLocalPlayer) return;
-
-        if (Input.GetKeyDown(KeyCode.Escape))
+        else
         {
-            ToggleCursorLock();
+            Debug.LogError("Chat display or Scroll Rect is not assigned.");
         }
     }
-
-    private void ToggleCursorLock()
-    {
-        LockCursor(!isCursorLocked);
-    }
+   
 }
