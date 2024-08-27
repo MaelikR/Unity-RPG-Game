@@ -21,9 +21,9 @@ LoginPanel: Panel used for player login interfaces.
 NET (Network Systems):
 EventSystem: Essential component for managing UI events in Unity.
 
-ObjectiveM: Game objective, possibly related to managing player objectives (likely where the ObjectiveManager script is attached).
+ObjectiveM: Game objective,related to managing player objectives (likely where the ObjectiveManager script is attached).
 Global Volume: Used for managing post-processing effects in the scene.
-Ocean: Asset or system to simulate an ocean or large water body in the scene.
+Ocean: Asset to simulate an ocean or large water body in the scene.
 
 CanvasIntro:
 Used to manage the introduction or startup screens.
