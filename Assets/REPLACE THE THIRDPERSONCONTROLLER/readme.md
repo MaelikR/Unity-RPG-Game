@@ -1,7 +1,8 @@
 Unity-RPG-Game: Controller Scripts
 This directory contains controller scripts for the Unity RPG project. There are two distinct controller scripts available, each designed for a different gameplay style. Due to the nature of these scripts, they cannot coexist within the same project simultaneously. You must choose one based on your desired gameplay perspective.
 
-Controller Scripts
+Controller Scripts:
+
 1. ThirdPersonController.cs
 This script is designed for a third-person gameplay perspective. It handles character movement, animations, and camera control for a standard third-person experience. Use this script if you want your game to have a traditional third-person perspective.
 
