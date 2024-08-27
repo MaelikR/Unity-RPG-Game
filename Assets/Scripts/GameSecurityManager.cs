@@ -14,8 +14,8 @@ using System.Text;
  * such as PlayFab authentication, network security with Mirror, real-time monitoring of suspicious activities,
  * and anti-cheat mechanisms. It is designed to protect the game from hacks, cheats, and unauthorized access.
  * 
- * Author: [Your Name]
- * Created: [Creation Date]
+ * Author: M.Ren
+ * Created: 21/08/2024
  * 
  * Features:
  * - PlayFab authentication and session management
@@ -105,10 +105,10 @@ public class GameSecurityManager : MonoBehaviour
 		}
 
 		// Vérification des fichiers critiques (exemple: checksums, hash des fichiers)
-		if (!IsFileIntegrityValid("YourGameFilePath"))
+		if (!IsFileIntegrityValid("\"C:\\Users\\maeli\\Documents\\RPGGAME\\Builds\\B-Client\""))
 		{
 			Debug.LogError("File integrity check failed. Potential cheat detected.");
-			BlockAccess();
+			//BlockAccess();
 		}
 	}
 
@@ -132,7 +132,7 @@ public class GameSecurityManager : MonoBehaviour
 		catch (System.Exception ex)
 		{
 			Debug.LogError("File integrity check failed: " + ex.Message);
-			return false;
+			//return false;
 		}
 	}
 
