@@ -3,10 +3,7 @@ This project is based on the example from natepac/playfabmirrorgameexample and i
 
 
 TODO:
-Fix Water System (jerky controller on water system surface)
-Fix Controller Fly Camera (rotation and fix movement with cinemachine virtual caméra)
-Fix Login Manager (input field with login validation)
-Fix Chat Manager (fix inputfield+output message client rpc and command server function)
+
 Fix Objective Manager (fix text and linked main objective of the game style vanilla)
 
 
