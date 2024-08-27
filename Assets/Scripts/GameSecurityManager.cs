@@ -103,37 +103,6 @@ public class GameSecurityManager : MonoBehaviour
 			Debug.LogError("Game version mismatch. Potential cheat detected.");
 			BlockAccess();
 		}
-
-		// Vérification des fichiers critiques (exemple: checksums, hash des fichiers)
-		if (!IsFileIntegrityValid("\"C:\\Users\\maeli\\Documents\\RPGGAME\\Builds\\B-Client\""))
-		{
-			Debug.LogError("File integrity check failed. Potential cheat detected.");
-			//BlockAccess();
-		}
-	}
-
-	bool IsFileIntegrityValid(string filePath)
-	{
-		// Exemple simple de vérification d'intégrité d'un fichier via SHA256
-		try
-		{
-			using (SHA256 sha256 = SHA256.Create())
-			{
-				byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
-				byte[] hashBytes = sha256.ComputeHash(fileBytes);
-
-				// Comparer le hash avec une valeur pré-calculée
-				string expectedHash = "YourExpectedHash";
-				string fileHash = BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
-
-				return fileHash == expectedHash;
-			}
-		}
-		catch (System.Exception ex)
-		{
-			Debug.LogError("File integrity check failed: " + ex.Message);
-			//return false;
-		}
 	}
 
 	void MonitorSuspiciousActivity()
