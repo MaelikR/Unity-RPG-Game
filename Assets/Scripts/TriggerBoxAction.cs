@@ -4,19 +4,17 @@ using Mirror;
 using System.Collections;
 using System.Collections.Generic;
 
-using System.Diagnostics;
-
 public class TriggerBoxAction : NetworkBehaviour
 {
     public Camera travellingCamera1;
     public Transform travelStartPoint1;
     public Transform travelEndPoint1;
-    public string messageToShow1 = "//text for camera 1";
+    public string messageToShow1 = "";
 
     public Camera travellingCamera2;
     public Transform travelStartPoint2;
     public Transform travelEndPoint2;
-    public string messageToShow2 = "//text for camera 2";
+    public string messageToShow2 = "";
 
     public float cameraTravelDuration = 3.0f;
     public Text uiText;  // Reference to the UI Text component
@@ -26,13 +24,13 @@ public class TriggerBoxAction : NetworkBehaviour
     private void Start()
     {
         // Ensure the travelling cameras are initially disabled
-        travellingCamera1.enabled = true;
+        travellingCamera1.enabled = false;
         travellingCamera2.enabled = false;
-       
+
         // Ensure the UI Text is initially disabled
         if (uiText != null)
         {
-            uiText.gameObject.SetActive(true);
+            uiText.gameObject.SetActive(false);
         }
     }
 
@@ -73,8 +71,6 @@ public class TriggerBoxAction : NetworkBehaviour
         yield return new WaitForSeconds(cameraTravelDuration);
 
         RpcEndCameraTravel(playerIdentity.connectionToClient, 2);
-
-       
 
         UnityEngine.Debug.Log("Trigger event ended for player: " + playerIdentity.netId);
     }
