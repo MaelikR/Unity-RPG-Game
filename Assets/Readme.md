@@ -4,7 +4,7 @@ This project is based on the example from natepac/playfabmirrorgameexample and i
 
 TODO:
 
-Fix Objective Manager (fix text and linked main objective of the game style vanilla)
+Fix Objective Manager (fix text and linked main objective of the game style vanilla and updated UI questing)
 
 
 
