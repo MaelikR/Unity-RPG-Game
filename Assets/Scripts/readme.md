@@ -6,7 +6,7 @@ Core Scripts
 Purpose: Defines the core configuration settings for the game, including build types (local client, remote client, local server, remote server), IP address, port, and PlayFab debugging options.
 Details: This script is crucial for setting up different environments (e.g., server, client) in your game. It allows for flexible configuration based on where the game is being run (locally or remotely).
 Note: Ensure that all configuration fields are correctly set before running the game to avoid connection issues.
-2. BossAI.cs
+2. BossAI.cs (no finished)
 Purpose: Controls the AI behavior of boss enemies in the game. Handles patrolling, chasing the player, attacking, and respawning. Also manages health, ground checks, and obstacle detection.
 Features:
 Patrol between waypoints.
@@ -16,7 +16,7 @@ Respawn mechanism after death.
 Background music and sound effects management.
 Details: This script integrates multiple AI states (idle, patrolling, chasing, attacking) and transitions smoothly between them. The boss character can also interact with obstacles in the environment, adding a layer of realism to its behavior.
 Note: This script is complex and includes various AI states and transitions. Proper debugging is needed to ensure smooth behavior in all scenarios. Consider stress-testing the AI in different environments to ensure robustness.
-3. ArtifactVideoTrigger.cs
+3. ArtifactVideoTrigger.cs (no debugged)
 Purpose: Triggers a video when the player interacts with an artifact in the game. Also unlocks a spell for the player and plays a sound effect.
 Features:
 Plays a video when the player enters a trigger zone.
@@ -40,7 +40,7 @@ Damage and healing logic.
 Player and enemy respawn handling.
 Details: The script is designed to be flexible, allowing it to be used for both players and enemies. It integrates with the game's UI to provide real-time feedback on health status, and it supports multiplayer scenarios by synchronizing health changes across the network.
 Known Issues: Make sure to test the respawn functionality thoroughly, especially in multiplayer scenarios where synchronization can be an issue. Debugging may be necessary to handle edge cases where health updates do not propagate correctly.
-6. ChatManager.cs (Currently Under Debugging)
+6. ChatManager.cs (Currently debugged and simplified)
 Purpose: Manages the in-game chat functionality, allowing players to communicate with each other in a multiplayer environment. It ensures that chat messages are sent, received, and displayed correctly across all clients.
 Features:
 Handles player input for chat messages.
@@ -75,10 +75,7 @@ Quests and Game Management
 1. EnableComponents.cs
 Purpose: Dynamically enables or disables specific components in the game, often used to manage game states or player progress.
 Details: This script can be used to toggle components on and off based on certain conditions, such as completing a quest or reaching a specific point in the game.
-2. GestionImages.cs
-Purpose: Manages in-game images, such as icons and textures, for UI elements.
-Details: This script handles the loading and management of images used throughout the game's UI, ensuring they are displayed correctly.
-3. MainQuest.cs
+3. MainQuest.cs (simplified and no finished)
 Purpose: Manages the main questline, tracking player progress and objectives throughout the game.
 Details: This script is the backbone of the game's narrative, ensuring that the player progresses through the story in a structured manner.
 4. UIController.cs
