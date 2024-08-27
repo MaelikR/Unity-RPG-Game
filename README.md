@@ -31,7 +31,7 @@ Welcome to the RPG GAME project! This repository contains the complete setup for
 |13.License
 
 
-RPG GAME Project
+RPG GAME Project:
 This document will guide you through the various aspects of the project, from setup instructions to detailed feature descriptions, ensuring you have everything you need to get started and understand the project's structure.
 
 
