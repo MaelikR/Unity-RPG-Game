@@ -28,8 +28,6 @@ Welcome to the RPG GAME project! This repository contains the complete setup for
 
 |12.Credits
 
-|13.License
-
 
 RPG GAME Project:
 This document will guide you through the various aspects of the project, from setup instructions to detailed feature descriptions, ensuring you have everything you need to get started and understand the project's structure.
@@ -210,7 +208,3 @@ https://learn.microsoft.com/en-us/gaming/playfab/sdks/unity3d/installing-unity3d
 ![image](https://github.com/user-attachments/assets/20232a05-7ea8-4ec8-9240-81c4bbead7c1)
 
 |ThirdPersonController: Official Unity Free Assets
-
-
-13.License:
-Include any licensing information here.
