@@ -208,4 +208,3 @@ https://learn.microsoft.com/en-us/gaming/playfab/sdks/unity3d/installing-unity3d
 
 ![image](https://github.com/user-attachments/assets/20232a05-7ea8-4ec8-9240-81c4bbead7c1)
 
-|ThirdPersonController: Official Unity Free Assets
