@@ -1,4 +1,4 @@
-# Unity-RPG-Game
+# Unity RPG Game Base
 Welcome to the RPG GAME project! This repository contains the complete setup for a multiplayer RPG game built using Unity, Mirror for networking, and PlayFab for backend services. Follow the instructions below to get started, configure the project, and build both the client and server components.
 ![image](https://github.com/user-attachments/assets/1361b09d-49da-45a5-8cbe-b87d7a4f4b2f)
 
